@@ -11,7 +11,7 @@ Build
 *.opensdf
 *.opendb
 *.sdf
-*.snl
+*.sln
 *.suo
 *.xcodeproj
 *.xcworkspace
