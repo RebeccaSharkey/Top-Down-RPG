@@ -1,4 +1,4 @@
-// Copywrite Spxcebxr Games
+// Copyright Spxcebxr Games
 
 #pragma once
 
@@ -17,9 +17,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:	
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	UPROPERTY(EditAnywhere, Category="Cobat")
+	TObjectPtr<USkeletalMeshComponent> Weapon;
 };

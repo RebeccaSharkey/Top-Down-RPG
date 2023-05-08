@@ -1,12 +1,15 @@
-// Copywrite Spxcebxr Games
+// Copyright Spxcebxr Games
 
 
 #include "Character/TopDownCharacterBase.h"
 
 ATopDownCharacterBase::ATopDownCharacterBase()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
+	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
+	Weapon->SetupAttachment(GetMesh(), FName("Hand_WeaponSocket"));
+	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ATopDownCharacterBase::BeginPlay()
@@ -15,15 +18,5 @@ void ATopDownCharacterBase::BeginPlay()
 	
 }
 
-void ATopDownCharacterBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
-}
-
-void ATopDownCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
 
