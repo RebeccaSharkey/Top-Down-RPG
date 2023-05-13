@@ -62,4 +62,6 @@ void UTopDownCharacterAnimInstance::SetVariables(const float DeltaSeconds)
 	FVector Velocity = MovementComponent->Velocity;
 	Velocity.Z = 0.f;
 	Speed = Velocity.Size();
+
+	bIsMoving = Speed <= 3.f ? false : true;
 }

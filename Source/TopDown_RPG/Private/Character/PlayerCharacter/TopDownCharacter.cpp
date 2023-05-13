@@ -8,6 +8,7 @@
 #include "AIController.h"
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
+#include "Components/CapsuleComponent.h"
 #include "Net/UnrealNetwork.h"
 
 ATopDownCharacter::ATopDownCharacter()

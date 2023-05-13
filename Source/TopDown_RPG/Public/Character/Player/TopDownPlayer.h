@@ -98,7 +98,9 @@ public:
 	void SetPathingVariables(FVector TargetLocation, FNavPathSharedPtr PathSharedPtr);
 
 	/* Movement */
-private:	
+private:
+	bool bCanMoveToPosition;
+	
 	void Click(const FInputActionValue& Value);
 	UFUNCTION(Server, Reliable)
 	void Server_MovePlayerCharacter(FVector TargetLocation);

@@ -10,6 +10,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Components/DecalComponent.h"
 #include "Engine/DecalActor.h"
+#include "Interaction/TopDownTargetInterface.h"
 #include "Net/UnrealNetwork.h"
 
 FPathingVariables::FPathingVariables()
@@ -128,13 +129,7 @@ void ATopDownPlayer::FindCurrentPath(float DeltaTime)
 		return;
 	}
 
-	/* As the Character is not controlled directly by the player get the server to ask the Character to run path finding logic */
-	Server_CheckPlayerCharacterPath(Hit.Location);
-
-	/* Use the path variables the character found to determine if the path is allowed. */
-	/* At the minute it only checks if the end point is not the same, this means there was an obstruction. */
-	/* When checked if the path is allowed or not spawn a coloured decal under the mouse for player feedback */
-	/* TODO: Set Up Player movement amount and check if the length of the path is allowed. */
+	/* Spawns a Decal to be used for player feedback */
 	ADecalActor* MousePositionDecal = GetWorld()->SpawnActor<ADecalActor>(PathingVariables.TargetLocation, FRotator());
 
 	if(!MousePositionDecal || !AllowedPosition || !NotAllowedPosition)
@@ -144,14 +139,32 @@ void ATopDownPlayer::FindCurrentPath(float DeltaTime)
 
 	MousePositionDecal->SetLifeSpan(DeltaTime);
 	MousePositionDecal->GetDecal()->DecalSize = FVector(32.0f, 64.0f, 64.0f);
-	
-	if(PathingVariables.EndPoint.X != PathingVariables.TargetLocation.X || PathingVariables.EndPoint.Y != PathingVariables.TargetLocation.Y)
+
+	/* Checks to see if ATopDownCharacterBase was hit if so don't do path finding as can't move here. */
+	ITopDownTargetInterface* CurrentActor = Cast<ITopDownTargetInterface>(Hit.GetActor());
+	if(CurrentActor)
 	{
 		MousePositionDecal->SetDecalMaterial(NotAllowedPosition);
+		bCanMoveToPosition = false;
+		return;
+	}
+	
+	/* As the Character is not controlled directly by the player get the server to ask the Character to run path finding logic */
+	Server_CheckPlayerCharacterPath(Hit.Location);
+
+	/* Use the path variables the character found to determine if the path is allowed. */
+	/* At the minute it only checks if the end point is not the same, this means there was an obstruction. */
+	/* When checked if the path is allowed or not spawn a coloured decal under the mouse for player feedback */
+	/* TODO: Set Up Player movement amount and check if the length of the path is allowed. */	
+	if(PathingVariables.EndPoint.X != PathingVariables.TargetLocation.X || PathingVariables.EndPoint.Y != PathingVariables.TargetLocation.Y)
+	{
+		MousePositionDecal->SetDecalMaterial(NotAllowedPosition);		
+		bCanMoveToPosition = false;
 		return;
 	}	
 	
-	MousePositionDecal->SetDecalMaterial(AllowedPosition);
+	MousePositionDecal->SetDecalMaterial(AllowedPosition);	
+	bCanMoveToPosition = true;
 }
 
 void ATopDownPlayer::Server_CheckPlayerCharacterPath_Implementation(FVector TargetLocation)
@@ -173,7 +186,7 @@ void ATopDownPlayer::SetPathingVariables(FVector TargetLocation, FNavPathSharedP
 /* Movement */
 void ATopDownPlayer::Click(const FInputActionValue& Value)
 {
-	if(!PlayerController)
+	if(!PlayerController || !bCanMoveToPosition)
 	{
 		return;
 	}

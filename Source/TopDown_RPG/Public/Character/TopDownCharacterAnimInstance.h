@@ -30,7 +30,9 @@ private:
 protected:
 	virtual void SetVariables(const float DeltaSeconds);
 
-private:
+private:	
+	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	bool bIsMoving;
 	UPROPERTY(BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float Speed;
 };
