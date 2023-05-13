@@ -1,11 +1,11 @@
 // Copyright Spxcebxr Games
 
 
-#include "Character/CharacterAnimInstance.h"
+#include "Character/TopDownCharacterAnimInstance.h"
 #include "Character/TopDownCharacterBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-void UCharacterAnimInstance::NativeInitializeAnimation()
+void UTopDownCharacterAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
@@ -25,12 +25,12 @@ void UCharacterAnimInstance::NativeInitializeAnimation()
 	
 }
 
-void UCharacterAnimInstance::NativeBeginPlay()
+void UTopDownCharacterAnimInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
 }
 
-void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+void UTopDownCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
@@ -57,7 +57,7 @@ void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	
 }
 
-void UCharacterAnimInstance::SetVariables(const float DeltaSeconds)
+void UTopDownCharacterAnimInstance::SetVariables(const float DeltaSeconds)
 {
 	FVector Velocity = MovementComponent->Velocity;
 	Velocity.Z = 0.f;

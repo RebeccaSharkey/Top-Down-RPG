@@ -28,7 +28,7 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 
 private:
-	ATopDownPlayer* PlayerCharacter;
+	TObjectPtr<ATopDownPlayer> PlayerCharacter;
 	
 /*---------------------------------------------------------------------------------------------------------------------*
  *		Input
@@ -36,13 +36,13 @@ private:
 protected:
 	/* Camera */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
-	UInputMappingContext* CameraMappingContext;
+	TObjectPtr<UInputMappingContext> CameraMappingContext;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
-	UInputAction* MoveCameraAction;
+	TObjectPtr<UInputAction> MoveCameraAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
-	UInputAction* RotateCameraAction;
+	TObjectPtr<UInputAction> RotateCameraAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
-	UInputAction* ZoomCameraAction;
+	TObjectPtr<UInputAction> ZoomCameraAction;
 
 	
 private:

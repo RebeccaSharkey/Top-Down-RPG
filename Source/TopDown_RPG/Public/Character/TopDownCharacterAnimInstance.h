@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "CharacterAnimInstance.generated.h"
+#include "TopDownCharacterAnimInstance.generated.h"
 
 class ATopDownCharacterBase;
 class UMovementComponent;
@@ -12,7 +12,7 @@ class UMovementComponent;
  * 
  */
 UCLASS()
-class TOPDOWN_RPG_API UCharacterAnimInstance : public UAnimInstance
+class TOPDOWN_RPG_API UTopDownCharacterAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 

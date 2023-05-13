@@ -1,13 +1,13 @@
 // Copyright Spxcebxr Games
 
 
-#include "Character/TopDownCharacter.h"
+#include "Character/PlayerCharacter/TopDownCharacter.h"
+#include "Character/PlayerCharacter/TopDownCharacterController.h"
+#include "Character/Player/TopDownPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Character/TopDownCharacterController.h"
 #include "AIController.h"
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
-#include "Character/TopDownPlayer.h"
 #include "Net/UnrealNetwork.h"
 
 ATopDownCharacter::ATopDownCharacter()

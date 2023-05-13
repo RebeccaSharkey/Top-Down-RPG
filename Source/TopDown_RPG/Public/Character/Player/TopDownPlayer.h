@@ -61,7 +61,7 @@ protected:
  *		Player Set Up
  *---------------------------------------------------------------------------------------------------------------------*/
 	
-	ATopDownPlayerController* PlayerController;
+	TObjectPtr<ATopDownPlayerController> PlayerController;
 
 	UPROPERTY(EditAnywhere, Category = "Player")
 	TSubclassOf<ATopDownCharacter> TopDownCharacterToSpawn;
@@ -72,31 +72,32 @@ protected:
 /*---------------------------------------------------------------------------------------------------------------------*
  *		Point and Click
  *---------------------------------------------------------------------------------------------------------------------*/
-
 	/* Point and Click */
+	/* TODO: Move the Input to the Player Controller. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
-	UInputMappingContext* PointClickMappingContext;
+	TObjectPtr<UInputMappingContext> PointClickMappingContext;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
-	UInputAction* ClickAction;
+	TObjectPtr<UInputAction> ClickAction;
 
 	/* Path Finding and Player Feedback */
 private:
-	void FindCurrentPath();
+	void FindCurrentPath(float DeltaTime);
 	
 	UFUNCTION(Server, Reliable)
 	void Server_CheckPlayerCharacterPath(FVector TargetLocation);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pathing", meta=(AllowPrivateAccess="true"))
-	UMaterial* AllowedPosition;
+	TObjectPtr<UMaterial> AllowedPosition;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pathing", meta=(AllowPrivateAccess="true"))
-	UMaterial* NotAllowedPosition;	
+	TObjectPtr<UMaterial> NotAllowedPosition;	
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pathing", meta=(AllowPrivateAccess="true"))
+	UPROPERTY(VisibleAnywhere, Replicated, Category = "Pathing")
 	FPathingVariables PathingVariables;
 	
 public:
 	void SetPathingVariables(FVector TargetLocation, FNavPathSharedPtr PathSharedPtr);
 
+	/* Movement */
 private:	
 	void Click(const FInputActionValue& Value);
 	UFUNCTION(Server, Reliable)

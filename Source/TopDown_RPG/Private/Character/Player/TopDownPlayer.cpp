@@ -1,13 +1,13 @@
 // Copyright Spxcebxr Games
 
 
-#include "Character/TopDownPlayer.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
+#include "Character/Player/TopDownPlayer.h"
+#include "Character/Player/TopDownPlayerController.h"
+#include "Character/PlayerCharacter/TopDownCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Character/TopDownCharacter.h"
-#include "Character/TopDownPlayerController.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "Components/DecalComponent.h"
 #include "Engine/DecalActor.h"
 #include "Net/UnrealNetwork.h"
@@ -110,11 +110,11 @@ void ATopDownPlayer::Tick(float DeltaTime)
 		}
 	}	
 		
-	FindCurrentPath();
+	FindCurrentPath(DeltaTime);
 }
 
 
-void ATopDownPlayer::FindCurrentPath()
+void ATopDownPlayer::FindCurrentPath(float DeltaTime)
 {
 	if(!PlayerController || !GetWorld())
 	{
@@ -134,9 +134,7 @@ void ATopDownPlayer::FindCurrentPath()
 	/* Use the path variables the character found to determine if the path is allowed. */
 	/* At the minute it only checks if the end point is not the same, this means there was an obstruction. */
 	/* When checked if the path is allowed or not spawn a coloured decal under the mouse for player feedback */
-	/* TODO: Draw the path for the player. */
 	/* TODO: Set Up Player movement amount and check if the length of the path is allowed. */
-
 	ADecalActor* MousePositionDecal = GetWorld()->SpawnActor<ADecalActor>(PathingVariables.TargetLocation, FRotator());
 
 	if(!MousePositionDecal || !AllowedPosition || !NotAllowedPosition)
@@ -144,7 +142,7 @@ void ATopDownPlayer::FindCurrentPath()
 		return;
 	}
 
-	MousePositionDecal->SetLifeSpan(0.001f);
+	MousePositionDecal->SetLifeSpan(DeltaTime);
 	MousePositionDecal->GetDecal()->DecalSize = FVector(32.0f, 64.0f, 64.0f);
 	
 	if(PathingVariables.EndPoint.X != PathingVariables.TargetLocation.X || PathingVariables.EndPoint.Y != PathingVariables.TargetLocation.Y)

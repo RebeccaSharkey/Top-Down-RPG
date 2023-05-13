@@ -1,8 +1,8 @@
 // Copyright Spxcebxr Games
 
 
-#include "Character/TopDownPlayerController.h"
-#include "Character/TopDownPlayer.h"
+#include "Character/Player/TopDownPlayerController.h"
+#include "Character/Player/TopDownPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -10,6 +10,8 @@
 
 ATopDownPlayerController::ATopDownPlayerController()
 {
+	bReplicates = true;
+	
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	
@@ -23,20 +25,27 @@ ATopDownPlayerController::ATopDownPlayerController()
 	CameraPanThreshold = 20.0f;
 
 	TargetCameraZoomDistance = 1500.0f;
-	
-	bShowMouseCursor = true; 
-	bEnableClickEvents = true; 
-	bEnableMouseOverEvents = true;
 }
 
 void ATopDownPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	check(CameraMappingContext);
 	
 	if(UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(CameraMappingContext, 0);
 	}
+	
+	bShowMouseCursor = true; 
+	bEnableClickEvents = true; 
+	bEnableMouseOverEvents = true;
+
+	FInputModeGameAndUI InputMode;
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	InputMode.SetHideCursorDuringCapture(false);
+	SetInputMode(InputMode);
+	
 }
 
 void ATopDownPlayerController::SetupInputComponent()
