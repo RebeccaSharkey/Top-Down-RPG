@@ -87,6 +87,11 @@ private:
 	void Server_CheckPlayerCharacterPath(FVector TargetLocation);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pathing", meta=(AllowPrivateAccess="true"))
+	UMaterial* AllowedPosition;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pathing", meta=(AllowPrivateAccess="true"))
+	UMaterial* NotAllowedPosition;	
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pathing", meta=(AllowPrivateAccess="true"))
 	FPathingVariables PathingVariables;
 	
 public:

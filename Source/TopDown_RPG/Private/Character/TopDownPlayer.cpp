@@ -8,6 +8,8 @@
 #include "Camera/CameraComponent.h"
 #include "Character/TopDownCharacter.h"
 #include "Character/TopDownPlayerController.h"
+#include "Components/DecalComponent.h"
+#include "Engine/DecalActor.h"
 #include "Net/UnrealNetwork.h"
 
 FPathingVariables::FPathingVariables()
@@ -114,6 +116,11 @@ void ATopDownPlayer::Tick(float DeltaTime)
 
 void ATopDownPlayer::FindCurrentPath()
 {
+	if(!PlayerController || !GetWorld())
+	{
+		return;
+	}
+	
 	/* Gets the position under the players mouse */
 	FHitResult Hit;
 	if(!PlayerController->GetHitResultUnderCursor(ECC_Visibility, true, Hit) || Hit.Location.ContainsNaN())
@@ -127,16 +134,26 @@ void ATopDownPlayer::FindCurrentPath()
 	/* Use the path variables the character found to determine if the path is allowed. */
 	/* At the minute it only checks if the end point is not the same, this means there was an obstruction. */
 	/* When checked if the path is allowed or not spawn a coloured decal under the mouse for player feedback */
-	/* TODO: Spawn a Decal instead of a debug sphere. */
 	/* TODO: Draw the path for the player. */
 	/* TODO: Set Up Player movement amount and check if the length of the path is allowed. */
+
+	ADecalActor* MousePositionDecal = GetWorld()->SpawnActor<ADecalActor>(PathingVariables.TargetLocation, FRotator());
+
+	if(!MousePositionDecal || !AllowedPosition || !NotAllowedPosition)
+	{
+		return;
+	}
+
+	MousePositionDecal->SetLifeSpan(0.001f);
+	MousePositionDecal->GetDecal()->DecalSize = FVector(32.0f, 64.0f, 64.0f);
+	
 	if(PathingVariables.EndPoint.X != PathingVariables.TargetLocation.X || PathingVariables.EndPoint.Y != PathingVariables.TargetLocation.Y)
 	{
-		DrawDebugSphere(GetWorld(), PathingVariables.TargetLocation, 30.f, 12, FColor::Red, false, -1, 0, 2.f);
+		MousePositionDecal->SetDecalMaterial(NotAllowedPosition);
 		return;
 	}	
 	
-	DrawDebugSphere(GetWorld(), PathingVariables.TargetLocation, 30.f, 12, FColor::Green, false, -1, 0, 2.f);
+	MousePositionDecal->SetDecalMaterial(AllowedPosition);
 }
 
 void ATopDownPlayer::Server_CheckPlayerCharacterPath_Implementation(FVector TargetLocation)
