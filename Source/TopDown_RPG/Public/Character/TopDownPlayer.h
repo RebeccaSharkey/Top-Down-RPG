@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
+#include "AI/Navigation/NavigationTypes.h"
+#include "NavigationSystem.h"
 #include "GameFramework/Pawn.h"
 #include "TopDownPlayer.generated.h"
 
@@ -12,6 +14,22 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+
+USTRUCT(BlueprintType)
+struct FPathingVariables
+{
+	GENERATED_BODY()
+
+	
+public:
+	FPathingVariables();
+
+	UPROPERTY(VisibleAnywhere)
+	FVector TargetLocation;
+
+	UPROPERTY(VisibleAnywhere)
+	FVector EndPoint;
+};
 
 UCLASS()
 class TOPDOWN_RPG_API ATopDownPlayer : public APawn
@@ -61,9 +79,21 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
 	UInputAction* ClickAction;
 
+	/* Path Finding and Player Feedback */
+private:
+	void FindCurrentPath();
+	
+	UFUNCTION(Server, Reliable)
+	void Server_CheckPlayerCharacterPath(FVector TargetLocation);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pathing", meta=(AllowPrivateAccess="true"))
+	FPathingVariables PathingVariables;
+	
+public:
+	void SetPathingVariables(FVector TargetLocation, FNavPathSharedPtr PathSharedPtr);
+
 private:	
 	void Click(const FInputActionValue& Value);
-
 	UFUNCTION(Server, Reliable)
-	void Server_MovePlayerCharacter(FVector TargetLocation);	
+	void Server_MovePlayerCharacter(FVector TargetLocation);
 };

@@ -4,6 +4,11 @@
 #include "Character/TopDownCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/TopDownCharacterController.h"
+#include "AIController.h"
+#include "NavigationPath.h"
+#include "NavigationSystem.h"
+#include "Character/TopDownPlayer.h"
+#include "Net/UnrealNetwork.h"
 
 ATopDownCharacter::ATopDownCharacter()
 {	
@@ -22,6 +27,13 @@ ATopDownCharacter::ATopDownCharacter()
 	bReplicates = true;
 }
 
+void ATopDownCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ATopDownCharacter, CharacterOwner, COND_None);
+}
+
 void ATopDownCharacter::BeginPlay()
 {
 	Super::BeginPlay();	
@@ -35,6 +47,52 @@ void ATopDownCharacter::Tick(float DeltaSeconds)
 	{
 		CharacterController = Cast<ATopDownCharacterController>(GetController());		
 	}
+
+	if(!CharacterOwner && GetOwner())
+	{
+		CharacterOwner = Cast<ATopDownPlayer>(GetOwner());
+	}
+}
+
+void ATopDownCharacter::CheckPath(FVector Location)
+{
+	if(!CharacterController && !CharacterOwner)
+	{
+		return;
+	}
+	
+	FAIMoveRequest MoveRequest;
+	MoveRequest.SetGoalLocation(Location);
+	FPathFindingQuery Query;
+	Query.SetNavAgentProperties(CharacterController->GetNavAgentPropertiesRef());
+	Query.SetAllowPartialPaths(false);
+
+	CharacterController->BuildPathfindingQuery(MoveRequest, Query);
+
+	CharacterController->FindPathForMoveRequest(MoveRequest, Query, PathSharedPtr);
+	
+	if(!PathSharedPtr.Get())
+	{
+		return;
+	}
+
+	/*UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
+
+	if (NavSystem)
+	{
+		ANavigationData* NavData = NavSystem->GetDefaultNavDataInstance(FNavigationSystem::DontCreate);
+		if (NavData)
+		{
+			PathSharedPtr.Get()->DebugDraw(NavData, FColor::Red, GetWorld()->GetCanvasForRenderingToTarget(), false);
+		}
+	}*/
+
+	Server_SetPlayerPathingVariables(Location);
+}
+
+void ATopDownCharacter::Server_SetPlayerPathingVariables_Implementation(FVector Location)
+{
+	CharacterOwner->SetPathingVariables(Location, PathSharedPtr);
 }
 
 void ATopDownCharacter::MoveTo(FVector Location)
@@ -43,7 +101,29 @@ void ATopDownCharacter::MoveTo(FVector Location)
 	{
 		return;
 	}
+
+	FAIMoveRequest MoveRequest;
+	MoveRequest.SetGoalLocation(Location);
+	FPathFindingQuery Query;
+	Query.SetNavAgentProperties(CharacterController->GetNavAgentPropertiesRef());
+	Query.SetAllowPartialPaths(false);
+	FNavPathSharedPtr MoveToPathSharedPtr;
+
+	CharacterController->BuildPathfindingQuery(MoveRequest, Query);
+
+	CharacterController->FindPathForMoveRequest(MoveRequest, Query, MoveToPathSharedPtr);
+	
+	if(!MoveToPathSharedPtr)
+	{
+		return;
+	}
+
+	if(MoveToPathSharedPtr.Get()->GetEndLocation().X != Location.X || MoveToPathSharedPtr.Get()->GetEndLocation().Y != Location.Y)
+	{
+		return;
+	}
 	
 	CharacterController->MoveToLocation(Location);
+		
 }
 
