@@ -1,29 +1,42 @@
-// Copywrite Spxcebxr Games
+// Copyright Spxcebxr Games
 
 
 #include "Character/TopDownCharacterBase.h"
+#include "Components/CapsuleComponent.h"
 
 ATopDownCharacterBase::ATopDownCharacterBase()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	
+	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
+	Weapon->SetupAttachment(GetMesh(), FName("Hand_WeaponSocket"));
+	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ATopDownCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
-void ATopDownCharacterBase::Tick(float DeltaTime)
+void ATopDownCharacterBase::HighlightActor()
 {
-	Super::Tick(DeltaTime);
+	GetMesh()->SetRenderCustomDepth(true);
+	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
 
+	Weapon->SetRenderCustomDepth(true);
+	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
 }
 
-void ATopDownCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+void ATopDownCharacterBase::UnHighlightActor()
+{	
+	GetMesh()->SetRenderCustomDepth(false);
 
+	Weapon->SetRenderCustomDepth(false);
 }
+
+
 
