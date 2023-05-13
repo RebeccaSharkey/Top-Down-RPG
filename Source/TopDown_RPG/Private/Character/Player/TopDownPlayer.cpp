@@ -111,11 +111,11 @@ void ATopDownPlayer::Tick(float DeltaTime)
 		}
 	}	
 		
-	FindCurrentPath(DeltaTime);
+	CheckCurrentCursorPosition(DeltaTime);
 }
 
 
-void ATopDownPlayer::FindCurrentPath(float DeltaTime)
+void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
 {
 	if(!PlayerController || !GetWorld())
 	{
@@ -146,7 +146,31 @@ void ATopDownPlayer::FindCurrentPath(float DeltaTime)
 	{
 		MousePositionDecal->SetDecalMaterial(NotAllowedPosition);
 		bCanMoveToPosition = false;
+		
+		/* Nothing needs to be done here as we already have this target highlighted */
+		if(TopDownTarget == CurrentActor)
+		{
+			return;
+		}
+
+		/* Unhighlights the Old Target if there was one. */
+		if(TopDownTarget)
+		{			
+			TopDownTarget->UnHighlightActor();
+		}
+
+		/* Selects the new target and highlights it */
+		TopDownTarget = CurrentActor;
+		TopDownTarget->HighlightActor();
+		
 		return;
+	}
+
+	/* Unhighlights the Old Target if there was one. */
+	if(TopDownTarget)
+	{		
+		TopDownTarget->UnHighlightActor();
+		TopDownTarget = nullptr;
 	}
 	
 	/* As the Character is not controlled directly by the player get the server to ask the Character to run path finding logic */
@@ -186,18 +210,12 @@ void ATopDownPlayer::SetPathingVariables(FVector TargetLocation, FNavPathSharedP
 /* Movement */
 void ATopDownPlayer::Click(const FInputActionValue& Value)
 {
-	if(!PlayerController || !bCanMoveToPosition)
-	{
-		return;
-	}
-	
-	FHitResult Hit;
-	if(!PlayerController->GetHitResultUnderCursor(ECC_Visibility, true, Hit) || Hit.Location.ContainsNaN())
+	if(!bCanMoveToPosition)
 	{
 		return;
 	}
 
-	Server_MovePlayerCharacter(Hit.Location);	
+	Server_MovePlayerCharacter(PathingVariables.TargetLocation);	
 }
 
 void ATopDownPlayer::Server_MovePlayerCharacter_Implementation(FVector TargetLocation)

@@ -6,6 +6,8 @@
 #include "UObject/Interface.h"
 #include "TopDownTargetInterface.generated.h"
 
+#define CUSTOM_DEPTH_RED 250
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UTopDownTargetInterface : public UInterface

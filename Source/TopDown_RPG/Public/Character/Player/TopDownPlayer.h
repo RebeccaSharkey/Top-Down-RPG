@@ -9,6 +9,7 @@
 #include "GameFramework/Pawn.h"
 #include "TopDownPlayer.generated.h"
 
+class ITopDownTargetInterface;
 class ATopDownCharacter;
 class USpringArmComponent;
 class UCameraComponent;
@@ -81,7 +82,9 @@ protected:
 
 	/* Path Finding and Player Feedback */
 private:
-	void FindCurrentPath(float DeltaTime);
+	void CheckCurrentCursorPosition(float DeltaTime);
+
+	ITopDownTargetInterface* TopDownTarget;
 	
 	UFUNCTION(Server, Reliable)
 	void Server_CheckPlayerCharacterPath(FVector TargetLocation);
