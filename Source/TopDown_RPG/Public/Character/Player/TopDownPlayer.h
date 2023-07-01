@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "AI/Navigation/NavigationTypes.h"
-#include "NavigationSystem.h"
 #include "GameFramework/Pawn.h"
 #include "TopDownPlayer.generated.h"
 

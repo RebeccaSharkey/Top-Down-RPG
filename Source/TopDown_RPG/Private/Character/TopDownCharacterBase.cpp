@@ -14,12 +14,12 @@ ATopDownCharacterBase::ATopDownCharacterBase()
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	Weapon->SetupAttachment(GetMesh(), FName("Hand_WeaponSocket"));
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 }
 
 void ATopDownCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void ATopDownCharacterBase::HighlightActor()
