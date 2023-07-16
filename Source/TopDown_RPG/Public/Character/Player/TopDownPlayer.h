@@ -14,6 +14,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+class ADecalActor;
 
 USTRUCT(BlueprintType)
 struct FPathingVariables
@@ -88,6 +89,8 @@ private:
 	UFUNCTION(Server, Reliable)
 	void Server_CheckPlayerCharacterPath(FVector TargetLocation);
 
+	TObjectPtr<ADecalActor> MousePositionDecal;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pathing", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UMaterial> AllowedPosition;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pathing", meta=(AllowPrivateAccess="true"))

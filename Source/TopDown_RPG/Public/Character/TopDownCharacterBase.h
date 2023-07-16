@@ -22,6 +22,6 @@ protected:
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 
 public:	
-	virtual void HighlightActor() override;
+	virtual void HighlightActor(EInteractionType IteractionType) override;
 	virtual void UnHighlightActor() override;
 };

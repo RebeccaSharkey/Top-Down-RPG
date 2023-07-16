@@ -77,6 +77,13 @@ void ATopDownPlayer::BeginPlay()
 		TopDownCharacter = GetWorld()->SpawnActor<ATopDownCharacter>(TopDownCharacterToSpawn, RootComponent->GetComponentLocation(), RootComponent->GetComponentRotation(), CharacterSpawnParams);
 		TopDownCharacter->CharacterOwner = this;
 	}
+
+	if(IsLocallyControlled())
+	{
+		MousePositionDecal = GetWorld()->SpawnActor<ADecalActor>(GetActorLocation(), FRotator());
+		MousePositionDecal->GetDecal()->DecalSize = FVector(32.0f, 64.0f, 64.0f);
+		MousePositionDecal->SetDecalMaterial(AllowedPosition);
+	}
 	
 }
 
@@ -95,12 +102,14 @@ void ATopDownPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	/* Check if the PlayerController has been properly set and set it if not. */
-	if(!PlayerController)
+	if(!PlayerController && IsLocallyControlled())
 	{
 		PlayerController = Cast<ATopDownPlayerController>(GetController());
+
 		/* Return if still not set as nothing else should be done. */
 		if(!PlayerController)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("TOP DOWN PLAYER: Player Controller Not Set."));
 			return;
 		}
 		
@@ -117,7 +126,7 @@ void ATopDownPlayer::Tick(float DeltaTime)
 
 void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
 {
-	if(!PlayerController || !GetWorld())
+	if(!PlayerController || !GetWorld() || !AllowedPosition || !NotAllowedPosition)
 	{
 		return;
 	}
@@ -129,22 +138,16 @@ void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
 		return;
 	}
 
-	/* Spawns a Decal to be used for player feedback */
-	ADecalActor* MousePositionDecal = GetWorld()->SpawnActor<ADecalActor>(PathingVariables.TargetLocation, FRotator());
-
-	if(!MousePositionDecal || !AllowedPosition || !NotAllowedPosition)
+	if(!MousePositionDecal)
 	{
 		return;
 	}
-
-	MousePositionDecal->SetLifeSpan(DeltaTime);
-	MousePositionDecal->GetDecal()->DecalSize = FVector(32.0f, 64.0f, 64.0f);
 
 	/* Checks to see if ATopDownCharacterBase was hit if so don't do path finding as can't move here. */
 	ITopDownTargetInterface* CurrentActor = Cast<ITopDownTargetInterface>(Hit.GetActor());
 	if(CurrentActor)
 	{
-		MousePositionDecal->SetDecalMaterial(NotAllowedPosition);
+		MousePositionDecal->GetDecal()->SetVisibility(false);
 		bCanMoveToPosition = false;
 		
 		/* Nothing needs to be done here as we already have this target highlighted */
@@ -161,16 +164,47 @@ void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
 
 		/* Selects the new target and highlights it */
 		TopDownTarget = CurrentActor;
-		TopDownTarget->HighlightActor();
+
+		ATopDownCharacterBase* Character = Cast<ATopDownCharacterBase>(TopDownTarget);
+		if(!Character)
+		{
+			TopDownTarget->HighlightActor(EIT_Item);
+			return;
+		}
+
+		ATopDownCharacter* PlayerCharacter = Cast<ATopDownCharacter>(TopDownTarget);
+		if(!PlayerCharacter)
+		{
+			TopDownTarget->HighlightActor(EIT_Enemy);
+			return;
+		}
+		
+		
+		if(PlayerCharacter == TopDownCharacter)
+		{			
+			TopDownTarget->HighlightActor(EIT_Player);
+		}
+		else
+		{
+			TopDownTarget->HighlightActor(EIT_Enemy);
+		}
 		
 		return;
 	}
-
+	
+	MousePositionDecal->GetDecal()->SetVisibility(true);
+		
 	/* Unhighlights the Old Target if there was one. */
 	if(TopDownTarget)
 	{		
 		TopDownTarget->UnHighlightActor();
 		TopDownTarget = nullptr;
+	}	
+	
+	/* Moves Decal to be used for player feedback */
+	if(!MousePositionDecal->IsHidden())
+	{		
+		MousePositionDecal->SetActorLocation(PathingVariables.TargetLocation, false);
 	}
 	
 	/* As the Character is not controlled directly by the player get the server to ask the Character to run path finding logic */
@@ -186,8 +220,8 @@ void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
 		bCanMoveToPosition = false;
 		return;
 	}	
-	
-	MousePositionDecal->SetDecalMaterial(AllowedPosition);	
+		
+	MousePositionDecal->SetDecalMaterial(AllowedPosition);
 	bCanMoveToPosition = true;
 }
 
