@@ -80,6 +80,11 @@ void ATopDownPlayer::BeginPlay()
 
 	if(IsLocallyControlled())
 	{
+		/* Reset Camera Rotation */
+		/* TODO: Rotate the Camera to face the same way as character. */
+		RootComponent->SetWorldRotation(FRotator(0.f, 0.f, 0.f));
+
+		/* Spawn The Mouse Position Decal */
 		MousePositionDecal = GetWorld()->SpawnActor<ADecalActor>(GetActorLocation(), FRotator());
 		MousePositionDecal->GetDecal()->DecalSize = FVector(32.0f, 64.0f, 64.0f);
 		MousePositionDecal->SetDecalMaterial(AllowedPosition);
