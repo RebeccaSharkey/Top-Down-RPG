@@ -30,6 +30,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	FVector EndPoint;
+	
+	UPROPERTY(VisibleAnywhere)
+	float PathLength;
 };
 
 UCLASS()
@@ -69,6 +72,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Replicated, Category = "Player")
 	TObjectPtr<ATopDownCharacter> TopDownCharacter;
+	
+	UPROPERTY(EditAnywhere, Replicated, Category = "Player")
+	float TopDownSpeed = 30.f;
 	
 /*---------------------------------------------------------------------------------------------------------------------*
  *		Point and Click

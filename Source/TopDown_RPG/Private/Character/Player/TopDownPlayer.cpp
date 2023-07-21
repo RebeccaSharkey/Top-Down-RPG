@@ -17,6 +17,7 @@ FPathingVariables::FPathingVariables()
 {
 	TargetLocation = FVector(0.f, 0.f, 0.f);
 	EndPoint = FVector(0.f, 0.f, 0.f);
+	PathLength = 0.f;
 }
 
 ATopDownPlayer::ATopDownPlayer()
@@ -218,13 +219,21 @@ void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
 	/* Use the path variables the character found to determine if the path is allowed. */
 	/* At the minute it only checks if the end point is not the same, this means there was an obstruction. */
 	/* When checked if the path is allowed or not spawn a coloured decal under the mouse for player feedback */
-	/* TODO: Set Up Player movement amount and check if the length of the path is allowed. */	
+		
 	if(PathingVariables.EndPoint.X != PathingVariables.TargetLocation.X || PathingVariables.EndPoint.Y != PathingVariables.TargetLocation.Y)
 	{
 		MousePositionDecal->SetDecalMaterial(NotAllowedPosition);		
 		bCanMoveToPosition = false;
 		return;
-	}	
+	}
+	
+	/* TODO: Set Up Player movement amount and check if the length of the path is allowed sort of implemented below. */
+	if(PathingVariables.PathLength > TopDownSpeed * 100.f)
+	{		
+		MousePositionDecal->SetDecalMaterial(NotAllowedPosition);		
+		bCanMoveToPosition = false;
+		return;
+	}
 		
 	MousePositionDecal->SetDecalMaterial(AllowedPosition);
 	bCanMoveToPosition = true;
@@ -244,6 +253,7 @@ void ATopDownPlayer::SetPathingVariables(FVector TargetLocation, FNavPathSharedP
 {
 	PathingVariables.TargetLocation = TargetLocation;
 	PathingVariables.EndPoint = PathSharedPtr.Get()->GetEndLocation();
+	PathingVariables.PathLength = PathSharedPtr.Get()->GetLength();
 }
 
 /* Movement */
@@ -264,6 +274,7 @@ void ATopDownPlayer::Server_MovePlayerCharacter_Implementation(FVector TargetLoc
 		return;
 	}
 	
+	/* TODO: Remove length of travel from amount of travel player is allowed. */
 	TopDownCharacter->MoveTo(TargetLocation);
 }
 

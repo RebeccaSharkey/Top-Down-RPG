@@ -77,17 +77,6 @@ void ATopDownCharacter::CheckPath(FVector Location)
 		return;
 	}
 
-	/*UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
-
-	if (NavSystem)
-	{
-		ANavigationData* NavData = NavSystem->GetDefaultNavDataInstance(FNavigationSystem::DontCreate);
-		if (NavData)
-		{
-			PathSharedPtr.Get()->DebugDraw(NavData, FColor::Red, GetWorld()->GetCanvasForRenderingToTarget(), false);
-		}
-	}*/
-
 	Server_SetPlayerPathingVariables(Location);
 }
 
