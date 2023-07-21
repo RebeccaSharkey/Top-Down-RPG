@@ -28,7 +28,10 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 
 private:
-	TObjectPtr<ATopDownPlayer> PlayerCharacter;
+	TObjectPtr<ATopDownPlayer> TopDownPlayer;
+
+public:
+	ATopDownPlayer* GetTopDownPlayer() const;
 	
 /*---------------------------------------------------------------------------------------------------------------------*
  *		Input

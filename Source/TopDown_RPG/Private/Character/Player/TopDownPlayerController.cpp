@@ -66,19 +66,24 @@ void ATopDownPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);	
 
-	if(!PlayerCharacter && GetPawn())
+	if(!TopDownPlayer && GetPawn())
 	{
-		PlayerCharacter = Cast<ATopDownPlayer>(GetPawn());
-		if(PlayerCharacter)
+		TopDownPlayer = Cast<ATopDownPlayer>(GetPawn());
+		if(TopDownPlayer)
 		{
-			PlayerCharacter->CameraSpringArm->TargetArmLength = TargetCameraZoomDistance;
+			TopDownPlayer->CameraSpringArm->TargetArmLength = TargetCameraZoomDistance;
 		}
 	}	
 
-	if(PlayerCharacter)
+	if(TopDownPlayer)
 	{
 		CameraMovement(DeltaSeconds);
 	}
+}
+
+ATopDownPlayer* ATopDownPlayerController::GetTopDownPlayer() const
+{
+	return TopDownPlayer;
 }
 
 void ATopDownPlayerController::MoveCamera(const FInputActionValue& Value)
@@ -117,7 +122,7 @@ void ATopDownPlayerController::ZoomCamera(const FInputActionValue& Value)
 		ZoomAmount = -CameraZoomPerUnit;
 	}
 	
-	TargetCameraZoomDistance = FMath::Clamp(PlayerCharacter->CameraSpringArm->TargetArmLength + ZoomAmount, MinCameraDistance, MaxCameraDistance);
+	TargetCameraZoomDistance = FMath::Clamp(TopDownPlayer->CameraSpringArm->TargetArmLength + ZoomAmount, MinCameraDistance, MaxCameraDistance);
 }
 
 void ATopDownPlayerController::CameraMovement(float DeltaTime)
@@ -157,17 +162,17 @@ void ATopDownPlayerController::CameraMovement(float DeltaTime)
 	CameraAxisValue.X = FMath::Clamp(CameraAxisValue.X, -1.0, 1.0);
 	CameraAxisValue.Y = FMath::Clamp(CameraAxisValue.Y, -1.0, 1.0);
 	
-	FVector Location = PlayerCharacter->GetActorLocation();
+	FVector Location = TopDownPlayer->GetActorLocation();
 
-	Location += PlayerCharacter->CameraSpringArm->GetRightVector() * CameraSpeed * CameraAxisValue.X * DeltaTime;
+	Location += TopDownPlayer->CameraSpringArm->GetRightVector() * CameraSpeed * CameraAxisValue.X * DeltaTime;
 	
-	Location += FRotationMatrix(FRotator(0, PlayerCharacter->CameraSpringArm->GetRelativeRotation().Yaw, 0)).GetScaledAxis(EAxis::X) * CameraSpeed * CameraAxisValue.Y * DeltaTime;
+	Location += FRotationMatrix(FRotator(0, TopDownPlayer->CameraSpringArm->GetRelativeRotation().Yaw, 0)).GetScaledAxis(EAxis::X) * CameraSpeed * CameraAxisValue.Y * DeltaTime;
 
-	PlayerCharacter->SetActorLocation(Location);
+	TopDownPlayer->SetActorLocation(Location);
 	
-	if (!FMath::IsNearlyEqual(PlayerCharacter->CameraSpringArm->TargetArmLength, TargetCameraZoomDistance, 0.5f))
+	if (!FMath::IsNearlyEqual(TopDownPlayer->CameraSpringArm->TargetArmLength, TargetCameraZoomDistance, 0.5f))
 	{
-		PlayerCharacter->CameraSpringArm->TargetArmLength = FMath::FInterpTo(PlayerCharacter->CameraSpringArm->TargetArmLength, TargetCameraZoomDistance, DeltaTime, CameraZoomSpeed);
+		TopDownPlayer->CameraSpringArm->TargetArmLength = FMath::FInterpTo(TopDownPlayer->CameraSpringArm->TargetArmLength, TargetCameraZoomDistance, DeltaTime, CameraZoomSpeed);
 	}
 
 	if (bShouldRotateCamera)
@@ -178,9 +183,9 @@ void ATopDownPlayerController::CameraMovement(float DeltaTime)
 		const float XPercent = (MouseLocation.X - RotateCameraMouseStart.X) / ViewportSizeX;
 		const float YPercent = (RotateCameraMouseStart.Y - MouseLocation.Y) / ViewportSizeY;
 
-		const FRotator CurrentRot = PlayerCharacter->CameraSpringArm->GetRelativeRotation().GetNormalized();
+		const FRotator CurrentRot = TopDownPlayer->CameraSpringArm->GetRelativeRotation().GetNormalized();
 
-		PlayerCharacter->CameraSpringArm->SetRelativeRotation(FRotator(FMath::Clamp<float>(CurrentRot.Pitch + (YPercent * 180), -88, 88), CurrentRot.Yaw + (XPercent * 180), 0));
+		TopDownPlayer->CameraSpringArm->SetRelativeRotation(FRotator(FMath::Clamp<float>(CurrentRot.Pitch + (YPercent * 180), -88, 88), CurrentRot.Yaw + (XPercent * 180), 0));
 
 		RotateCameraMouseStart = MouseLocation;
 	}

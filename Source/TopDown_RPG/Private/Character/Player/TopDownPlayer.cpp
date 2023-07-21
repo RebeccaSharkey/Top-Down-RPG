@@ -227,7 +227,7 @@ void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
 		return;
 	}
 	
-	/* TODO: Set Up Player movement amount and check if the length of the path is allowed sort of implemented below. */
+	/* TODO: Set Up Player movement amount and check if the length of the path is allowed partially implemented below. */
 	if(PathingVariables.PathLength > TopDownSpeed * 100.f)
 	{		
 		MousePositionDecal->SetDecalMaterial(NotAllowedPosition);		
