@@ -42,6 +42,7 @@ void ATopDownCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 	DOREPLIFETIME_CONDITION(ATopDownCharacter, TopDownOwnerPlayer, COND_None);
 	DOREPLIFETIME(ATopDownCharacter, TopDownOwnerPlayerState);
+	DOREPLIFETIME(ATopDownCharacter, bIsInitialized);
 }
 
 void ATopDownCharacter::BeginPlay()

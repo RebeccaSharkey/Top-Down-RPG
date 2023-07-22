@@ -37,9 +37,7 @@ protected:
 public:
 	virtual void Tick(float DeltaSeconds) override;
 	
-private:
-	bool bIsInitialized = false;
-	
+private:	
 	TObjectPtr<ATopDownCharacterController> TopDownCharacterController;	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category="Player", meta = (AllowPrivateAccess = "true"))	
 	TObjectPtr<ATopDownPlayer> TopDownOwnerPlayer;

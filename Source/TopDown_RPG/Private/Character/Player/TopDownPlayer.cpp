@@ -65,22 +65,6 @@ void ATopDownPlayer::BeginPlay()
 {
 	Super::BeginPlay();	
 	
-	/* Only Spawn the Player's Character on the Server as technically it is AI and therefore not directly controlled by the player */
-	if(HasAuthority())
-	{
-		if(!TopDownCharacterToSpawn)
-		{		
-			return;
-		}
-
-		FActorSpawnParameters CharacterSpawnParams;
-		CharacterSpawnParams.Owner = this;
-		CharacterSpawnParams.Instigator = this;
-
-		TopDownCharacter = GetWorld()->SpawnActor<ATopDownCharacter>(TopDownCharacterToSpawn, RootComponent->GetComponentLocation(), RootComponent->GetComponentRotation(), CharacterSpawnParams);
-		TopDownCharacter->TopDownOwnerPlayer = this;
-	}
-
 	if(IsLocallyControlled())
 	{
 		/* Reset Camera Rotation */
@@ -130,73 +114,78 @@ void ATopDownPlayer::Tick(float DeltaTime)
 	CheckCurrentCursorPosition(DeltaTime);
 }
 
-void ATopDownPlayer::Server_SetPlayerState_Implementation()
+void ATopDownPlayer::OnRep_PlayerState()
 {
-	if(!GetPlayerState())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("TopDownPlayer - Server_SetPlayerState: PlayerState not set."));
-		return;
-	}		
-		
-	TopDownPlayerState = Cast<ATopDownPlayerState>(GetPlayerState());
-	if(!TopDownPlayerState)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("TopDownPlayer - Server_SetPlayerState: TopDownPlayerState not set."));
-		return;
-	}
-		
-	TopDownPlayerState->SetUpPlayerState();
-	TopDownPlayerState->SetCurrentCharacter(TopDownCharacter);
-}
+	Super::OnRep_PlayerState();	
 
-void ATopDownPlayer::Server_ChangeTopDownCharaterOnPlayerState_Implementation()
-{
 	if(!TopDownPlayerState)
-	{
+	{		
 		if(!GetPlayerState())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("TopDownPlayer - Server_ChangeTopDownCharaterOnPlayerState: PlayerState not set."));
+			UE_LOG(LogTemp, Warning, TEXT("TopDownPlayer - OnRep_PlayerState: PlayerState not set."));
 			return;
 		}		
 		
 		TopDownPlayerState = Cast<ATopDownPlayerState>(GetPlayerState());
 		if(!TopDownPlayerState)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("TopDownPlayer - Server_ChangeTopDownCharaterOnPlayerState: TopDownPlayerState not set."));
+			UE_LOG(LogTemp, Warning, TEXT("TopDownPlayer - OnRep_PlayerState: TopDownPlayerState not set."));
 			return;
 		}
+	}
+	
+	/* Only Spawn the Player's Character on the Server as technically it is AI and therefore not directly controlled by the player */
+	if(IsLocallyControlled())
+	{		
+		Server_SpawnCharacters();
+	}	
+}
+
+void ATopDownPlayer::Server_SpawnCharacters_Implementation()
+{	
+	if(!TopDownCharacterToSpawn)
+	{		
+		return;
+	}
+
+	if(!TopDownPlayerState)
+	{		
+		if(!GetPlayerState())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("TopDownPlayer - Server_SpawnCharacters: PlayerState not set."));
+			return;
+		}		
 		
-		TopDownPlayerState->SetUpPlayerState();
-		TopDownPlayerState->SetCurrentCharacter(TopDownCharacter);
+		TopDownPlayerState = Cast<ATopDownPlayerState>(GetPlayerState());
+		if(!TopDownPlayerState)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("TopDownPlayer - Server_SpawnCharacters: TopDownPlayerState not set."));
+			return;
+		}
+
+		TopDownPlayerState->SetUpPlayerState(this);
+	}
+
+	FActorSpawnParameters CharacterSpawnParams;
+	CharacterSpawnParams.Owner = this;
+	CharacterSpawnParams.Instigator = this;
+
+	TopDownCharacter = GetWorld()->SpawnActor<ATopDownCharacter>(TopDownCharacterToSpawn, RootComponent->GetComponentLocation(), RootComponent->GetComponentRotation(), CharacterSpawnParams);
+	TopDownCharacter->TopDownOwnerPlayer = this;
+	TopDownCharacter->SetUpTopDownPlayerCharacter();
+
+	ChangeTopDownCharaterOnPlayerState();		
+}
+
+void ATopDownPlayer::ChangeTopDownCharaterOnPlayerState()
+{
+	if(!TopDownPlayerState)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TopDownPlayer - ChangeTopDownCharaterOnPlayerState: TopDownPlayerState not set."));
 		return;
 	}
 	
 	TopDownPlayerState->SetCurrentCharacter(TopDownCharacter);
-}
-
-void ATopDownPlayer::OnRep_TopDownCharacter()
-{
-	if(!IsLocallyControlled())
-	{
-		return;
-	}
-	
-	if(!TopDownPlayerState)
-	{		
-		Server_SetPlayerState();
-	}
-
-	Server_ChangeTopDownCharaterOnPlayerState();
-	
-	if(!TopDownCharacter->bIsInitialized)
-	{
-		Server_SetUpTopDownCharacter();
-	}
-}
-
-void ATopDownPlayer::Server_SetUpTopDownCharacter_Implementation()
-{
-	TopDownCharacter->SetUpTopDownPlayerCharacter();
 }
 
 void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)

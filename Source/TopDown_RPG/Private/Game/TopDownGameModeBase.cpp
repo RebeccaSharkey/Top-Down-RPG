@@ -37,6 +37,5 @@ AActor* ATopDownGameModeBase::ChoosePlayerStart_Implementation(AController* Play
 		}
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Black, FString::Printf(TEXT("Failed to set a player start")));	
 	return Super::ChoosePlayerStart_Implementation(Player);
 }

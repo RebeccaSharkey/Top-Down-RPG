@@ -30,7 +30,7 @@ void ATopDownPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(ATopDownPlayerState, CurrentCharactersAttributeSet);
 }
 
-void ATopDownPlayerState::SetUpPlayerState()
+void ATopDownPlayerState::SetUpPlayerState(ATopDownPlayer* NewTopDownPlayer)
 {
 	if(GetPlayerController())
 	{
@@ -41,11 +41,8 @@ void ATopDownPlayerState::SetUpPlayerState()
 			return;
 		}
 
-		if(TopDownPlayerController->GetTopDownPlayer())
-		{
-			TopDownPlayer = TopDownPlayerController->GetTopDownPlayer();
-		}
-		else
+		TopDownPlayer = NewTopDownPlayer;
+		if(!TopDownPlayer)
 		{			
 			UE_LOG(LogTemp, Warning, TEXT("TopDownPlayerState - SetUpPlayerState: Failed to set TopDownPlayer"));
 			return;

@@ -68,25 +68,18 @@ protected:
 	
 	TObjectPtr<ATopDownPlayerController> TopDownPlayerController;
 	
-	UPROPERTY(Replicated)
-	TObjectPtr<ATopDownPlayerState> TopDownPlayerState;	
-
+	UPROPERTY(VisibleAnywhere, Replicated)
+	TObjectPtr<ATopDownPlayerState> TopDownPlayerState;
+	virtual void OnRep_PlayerState() override;
+	
 	UFUNCTION(Server, Reliable)
-	void Server_SetPlayerState();
-
+	void Server_SpawnCharacters();	
 	UPROPERTY(EditAnywhere, Category = "Player")
-	TSubclassOf<ATopDownCharacter> TopDownCharacterToSpawn;
-	
-	UPROPERTY(ReplicatedUsing=OnRep_TopDownCharacter)
-	TObjectPtr<ATopDownCharacter> TopDownCharacter;
-	
-	UFUNCTION()
-	void OnRep_TopDownCharacter();
-	
-	UFUNCTION(Server, Reliable)
-	void Server_SetUpTopDownCharacter();
-	UFUNCTION(Server, Reliable)
-	void Server_ChangeTopDownCharaterOnPlayerState();
+	TSubclassOf<ATopDownCharacter> TopDownCharacterToSpawn;	
+	UPROPERTY(Replicated)
+	TObjectPtr<ATopDownCharacter> TopDownCharacter;	
+		
+	void ChangeTopDownCharaterOnPlayerState();
 	
 	UPROPERTY(EditAnywhere, Replicated, Category = "Player")
 	float TopDownSpeed = 30.f;

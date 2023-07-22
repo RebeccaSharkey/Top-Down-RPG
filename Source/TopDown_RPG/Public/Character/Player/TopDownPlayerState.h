@@ -26,7 +26,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void SetUpPlayerState();
+	void SetUpPlayerState(ATopDownPlayer* NewTopDownPlayer);
 	
 protected:
 	UPROPERTY(VisibleAnywhere, Replicated, Category="PlayerVariables")
