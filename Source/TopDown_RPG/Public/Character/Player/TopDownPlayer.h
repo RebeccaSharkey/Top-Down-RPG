@@ -84,6 +84,8 @@ protected:
 	void OnRep_TopDownCharacter();
 	
 	UFUNCTION(Server, Reliable)
+	void Server_SetUpTopDownCharacter();
+	UFUNCTION(Server, Reliable)
 	void Server_ChangeTopDownCharaterOnPlayerState();
 	
 	UPROPERTY(EditAnywhere, Replicated, Category = "Player")

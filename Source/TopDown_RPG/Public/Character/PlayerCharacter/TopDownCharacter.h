@@ -9,6 +9,7 @@
 
 class ATopDownCharacterController;
 class ATopDownPlayerController;
+class ATopDownPlayerState;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
@@ -24,35 +25,32 @@ class TOPDOWN_RPG_API ATopDownCharacter : public ATopDownCharacterBase
 	GENERATED_BODY()
 
 public:
-	friend class ATopDownPlayer;	
+	friend class ATopDownPlayer;
+	
 	ATopDownCharacter();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:	
 	virtual void BeginPlay() override;
+	virtual void SetUpTopDownPlayerCharacter();
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
 	
 private:
-	ATopDownCharacterController* CharacterController;
+	bool bIsInitialized = false;
 	
+	TObjectPtr<ATopDownCharacterController> TopDownCharacterController;	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category="Player", meta = (AllowPrivateAccess = "true"))	
-	ATopDownPlayer* CharacterOwner;
+	TObjectPtr<ATopDownPlayer> TopDownOwnerPlayer;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category="Player", meta = (AllowPrivateAccess = "true"))	
+	TObjectPtr<ATopDownPlayerState> TopDownOwnerPlayerState;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* CameraComponent;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta = (AllowPrivateAccess = "true"))
-	USpringArmComponent* SpringArmComponent;
-
 	/* Movement*/
-	void CheckPath(FVector Location);
-	
+	void CheckPath(FVector Location);	
 	FNavPathSharedPtr PathSharedPtr;
 
 	UFUNCTION(Server, Reliable)
-	void Server_SetPlayerPathingVariables(FVector Location);
-	
-	void MoveTo(FVector Location);
-	
+	void Server_SetPlayerPathingVariables(FVector Location);	
+	void MoveTo(FVector Location);	
 };

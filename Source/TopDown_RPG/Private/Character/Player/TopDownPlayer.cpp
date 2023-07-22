@@ -78,7 +78,7 @@ void ATopDownPlayer::BeginPlay()
 		CharacterSpawnParams.Instigator = this;
 
 		TopDownCharacter = GetWorld()->SpawnActor<ATopDownCharacter>(TopDownCharacterToSpawn, RootComponent->GetComponentLocation(), RootComponent->GetComponentRotation(), CharacterSpawnParams);
-		TopDownCharacter->CharacterOwner = this;		
+		TopDownCharacter->TopDownOwnerPlayer = this;
 	}
 
 	if(IsLocallyControlled())
@@ -129,7 +129,6 @@ void ATopDownPlayer::Tick(float DeltaTime)
 		
 	CheckCurrentCursorPosition(DeltaTime);
 }
-
 
 void ATopDownPlayer::Server_SetPlayerState_Implementation()
 {
@@ -184,12 +183,20 @@ void ATopDownPlayer::OnRep_TopDownCharacter()
 	
 	if(!TopDownPlayerState)
 	{		
-		/* Sets the Player State for the player to access. */
 		Server_SetPlayerState();
-		return;
 	}
 
 	Server_ChangeTopDownCharaterOnPlayerState();
+	
+	if(!TopDownCharacter->bIsInitialized)
+	{
+		Server_SetUpTopDownCharacter();
+	}
+}
+
+void ATopDownPlayer::Server_SetUpTopDownCharacter_Implementation()
+{
+	TopDownCharacter->SetUpTopDownPlayerCharacter();
 }
 
 void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)

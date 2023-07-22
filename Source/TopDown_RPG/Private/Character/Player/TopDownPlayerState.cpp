@@ -24,7 +24,7 @@ void ATopDownPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);	
 
 	DOREPLIFETIME(ATopDownPlayerState, TopDownPlayer);
-	DOREPLIFETIME(ATopDownPlayerState, TopDownPlayerController);
+	DOREPLIFETIME_CONDITION(ATopDownPlayerState, TopDownPlayerController, COND_OwnerOnly);
 	DOREPLIFETIME(ATopDownPlayerState, CurrentTopDownCharacter);
 	DOREPLIFETIME(ATopDownPlayerState, CurrentCharactersAbilitySystemComponent);
 	DOREPLIFETIME(ATopDownPlayerState, CurrentCharactersAttributeSet);
@@ -69,7 +69,6 @@ UAttributeSet* ATopDownPlayerState::GetAttributeSet() const
 
 void ATopDownPlayerState::SetCurrentCharacter(ATopDownCharacter* CurrentCharacter)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, FString::Printf(TEXT("Set Current Character")));
 	CurrentTopDownCharacter = CurrentCharacter;
 
 	if(CurrentTopDownCharacter)

@@ -11,6 +11,7 @@
 #include "Net/UnrealNetwork.h"
 #include "AbilitySystem/TopDownAbilitySystemComponent.h"
 #include "AbilitySystem/TopDownAttributeSet.h"
+#include "Character/Player/TopDownPlayerState.h"
 
 ATopDownCharacter::ATopDownCharacter()
 {	
@@ -39,7 +40,8 @@ void ATopDownCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(ATopDownCharacter, CharacterOwner, COND_None);
+	DOREPLIFETIME_CONDITION(ATopDownCharacter, TopDownOwnerPlayer, COND_None);
+	DOREPLIFETIME(ATopDownCharacter, TopDownOwnerPlayerState);
 }
 
 void ATopDownCharacter::BeginPlay()
@@ -47,24 +49,77 @@ void ATopDownCharacter::BeginPlay()
 	Super::BeginPlay();	
 }
 
+void ATopDownCharacter::SetUpTopDownPlayerCharacter()
+{
+	if(!GetController())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TopDownCharacter - SetUpTopDownPlayerCharacter: No Controller Set."));
+		return;
+	}
+	
+	TopDownCharacterController = Cast<ATopDownCharacterController>(GetController());
+	if(!TopDownCharacterController)
+	{		
+		UE_LOG(LogTemp, Warning, TEXT("TopDownCharacter - SetUpTopDownPlayerCharacter: Failed to set TopDownCharacterController."));
+		return;
+	}
+
+	if(!TopDownOwnerPlayer)
+	{		
+		if(!GetOwner())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("TopDownCharacter - SetUpTopDownPlayerCharacter: No Owner."));
+			return;
+		}
+
+		TopDownOwnerPlayer = Cast<ATopDownPlayer>(GetOwner());
+		if(!TopDownOwnerPlayer)
+		{		
+			UE_LOG(LogTemp, Warning, TEXT("TopDownCharacter - SetUpTopDownPlayerCharacter: Failed to set TopDownOwnerPlayer."));
+			return;
+		}
+	}
+
+	if(GetOwner() != TopDownOwnerPlayer)
+	{
+		SetOwner(TopDownOwnerPlayer);
+	}
+
+	if(!TopDownOwnerPlayer->GetPlayerState())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TopDownCharacter - SetUpTopDownPlayerCharacter: TopDownOwnerPlayer has no PlayerState"));
+		return;
+	}
+
+	TopDownOwnerPlayerState = Cast<ATopDownPlayerState>(TopDownOwnerPlayer->GetPlayerState());
+	if(!TopDownOwnerPlayerState)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TopDownCharacter - SetUpTopDownPlayerCharacter: Failed to set TopDownOwnerPlayerState."));
+		return;
+	}
+
+	AbilitySystemComponent->InitAbilityActorInfo(TopDownOwnerPlayerState, this);
+	bIsInitialized = true;
+}
+
 void ATopDownCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if(!CharacterController)
+	if(!TopDownCharacterController)
 	{
-		CharacterController = Cast<ATopDownCharacterController>(GetController());		
+		TopDownCharacterController = Cast<ATopDownCharacterController>(GetController());		
 	}
 
-	if(!CharacterOwner && GetOwner())
+	if(!TopDownOwnerPlayer && GetOwner())
 	{
-		CharacterOwner = Cast<ATopDownPlayer>(GetOwner());
+		TopDownOwnerPlayer = Cast<ATopDownPlayer>(GetOwner());
 	}
 }
 
 void ATopDownCharacter::CheckPath(FVector Location)
 {
-	if(!CharacterController && !CharacterOwner)
+	if(!TopDownCharacterController && !TopDownOwnerPlayer)
 	{
 		return;
 	}
@@ -72,12 +127,12 @@ void ATopDownCharacter::CheckPath(FVector Location)
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalLocation(Location);
 	FPathFindingQuery Query;
-	Query.SetNavAgentProperties(CharacterController->GetNavAgentPropertiesRef());
+	Query.SetNavAgentProperties(TopDownCharacterController->GetNavAgentPropertiesRef());
 	Query.SetAllowPartialPaths(false);
 
-	CharacterController->BuildPathfindingQuery(MoveRequest, Query);
+	TopDownCharacterController->BuildPathfindingQuery(MoveRequest, Query);
 
-	CharacterController->FindPathForMoveRequest(MoveRequest, Query, PathSharedPtr);
+	TopDownCharacterController->FindPathForMoveRequest(MoveRequest, Query, PathSharedPtr);
 	
 	if(!PathSharedPtr.Get())
 	{
@@ -89,12 +144,15 @@ void ATopDownCharacter::CheckPath(FVector Location)
 
 void ATopDownCharacter::Server_SetPlayerPathingVariables_Implementation(FVector Location)
 {
-	CharacterOwner->SetPathingVariables(Location, PathSharedPtr);
+	if(TopDownOwnerPlayer)
+	{		
+		TopDownOwnerPlayer->SetPathingVariables(Location, PathSharedPtr);
+	}
 }
 
 void ATopDownCharacter::MoveTo(FVector Location)
 {	
-	if(!CharacterController)
+	if(!TopDownCharacterController)
 	{
 		return;
 	}
@@ -102,13 +160,13 @@ void ATopDownCharacter::MoveTo(FVector Location)
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalLocation(Location);
 	FPathFindingQuery Query;
-	Query.SetNavAgentProperties(CharacterController->GetNavAgentPropertiesRef());
+	Query.SetNavAgentProperties(TopDownCharacterController->GetNavAgentPropertiesRef());
 	Query.SetAllowPartialPaths(false);
 	FNavPathSharedPtr MoveToPathSharedPtr;
 
-	CharacterController->BuildPathfindingQuery(MoveRequest, Query);
+	TopDownCharacterController->BuildPathfindingQuery(MoveRequest, Query);
 
-	CharacterController->FindPathForMoveRequest(MoveRequest, Query, MoveToPathSharedPtr);
+	TopDownCharacterController->FindPathForMoveRequest(MoveRequest, Query, MoveToPathSharedPtr);
 	
 	if(!MoveToPathSharedPtr)
 	{
@@ -120,6 +178,6 @@ void ATopDownCharacter::MoveTo(FVector Location)
 		return;
 	}
 	
-	CharacterController->MoveToLocation(Location, 1.f, false);
+	TopDownCharacterController->MoveToLocation(Location, 1.f, false);
 }
 
