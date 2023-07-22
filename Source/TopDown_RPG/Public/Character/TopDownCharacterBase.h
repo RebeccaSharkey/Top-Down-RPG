@@ -25,6 +25,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 
+	/* IAbilitySystemInterface */
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent>	AbilitySystemComponent;
 	UPROPERTY()
@@ -33,9 +34,9 @@ protected:
 public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const;
-	
+
+	/* ITopDownTargetInterface */
 	virtual void HighlightActor(EInteractionType IteractionType) override;
 	virtual void UnHighlightActor() override;
-
 	
 };

@@ -16,4 +16,7 @@ class TOPDOWN_RPG_API ATopDownEnemy : public ATopDownCharacterBase
 
 public:
 	ATopDownEnemy();
+
+protected:
+	virtual void BeginPlay() override;
 };

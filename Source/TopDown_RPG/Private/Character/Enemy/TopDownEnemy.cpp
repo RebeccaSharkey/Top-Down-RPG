@@ -13,3 +13,10 @@ ATopDownEnemy::ATopDownEnemy()
 
 	AttributeSet = CreateDefaultSubobject<UTopDownAttributeSet>("AttributeSet");
 }
+
+void ATopDownEnemy::BeginPlay()
+{
+	Super::BeginPlay();
+
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);	
+}
