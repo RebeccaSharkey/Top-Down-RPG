@@ -2,8 +2,6 @@
 
 
 #include "Character/TopDownCharacterBase.h"
-
-#include "SWarningOrErrorBox.h"
 #include "Components/CapsuleComponent.h"
 
 ATopDownCharacterBase::ATopDownCharacterBase()
@@ -23,6 +21,16 @@ ATopDownCharacterBase::ATopDownCharacterBase()
 void ATopDownCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+UAbilitySystemComponent* ATopDownCharacterBase::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
+UAttributeSet* ATopDownCharacterBase::GetAttributeSet() const
+{
+	return AttributeSet;
 }
 
 void ATopDownCharacterBase::HighlightActor(EInteractionType IteractionType)

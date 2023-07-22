@@ -14,4 +14,6 @@ class TOPDOWN_RPG_API ATopDownEnemy : public ATopDownCharacterBase
 {
 	GENERATED_BODY()
 
+public:
+	ATopDownEnemy();
 };

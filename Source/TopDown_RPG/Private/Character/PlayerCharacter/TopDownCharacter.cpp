@@ -8,13 +8,16 @@
 #include "AIController.h"
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
-#include "Components/CapsuleComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "AbilitySystem/TopDownAbilitySystemComponent.h"
+#include "AbilitySystem/TopDownAttributeSet.h"
 
 ATopDownCharacter::ATopDownCharacter()
 {	
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+	
+	bReplicates = true;
 	
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -23,9 +26,13 @@ ATopDownCharacter::ATopDownCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true; 
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
 	GetCharacterMovement()->bConstrainToPlane = true;
-	GetCharacterMovement()->bSnapToPlaneAtStart = true;
+	GetCharacterMovement()->bSnapToPlaneAtStart = true;	
 
-	bReplicates = true;
+	AbilitySystemComponent = CreateDefaultSubobject<UTopDownAbilitySystemComponent>("AbilitySystemComponent");
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+	AttributeSet = CreateDefaultSubobject<UTopDownAttributeSet>("AttributeSet");
 }
 
 void ATopDownCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -113,7 +120,6 @@ void ATopDownCharacter::MoveTo(FVector Location)
 		return;
 	}
 	
-	CharacterController->MoveToLocation(Location);
-		
+	CharacterController->MoveToLocation(Location, 1.f, false);
 }
 

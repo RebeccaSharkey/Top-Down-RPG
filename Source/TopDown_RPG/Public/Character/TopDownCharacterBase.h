@@ -4,11 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Interaction/TopDownTargetInterface.h"
+#include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
 #include "TopDownCharacterBase.generated.h"
 
+class UAbilitySystemComponent;
+class UAttributeSet;
+
 UCLASS()
-class TOPDOWN_RPG_API ATopDownCharacterBase : public ACharacter, public ITopDownTargetInterface
+class TOPDOWN_RPG_API ATopDownCharacterBase : public ACharacter, public ITopDownTargetInterface, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -21,7 +25,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon;
 
-public:	
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent>	AbilitySystemComponent;
+	UPROPERTY()
+	TObjectPtr<UAttributeSet> AttributeSet;
+	
+public:
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	UAttributeSet* GetAttributeSet() const;
+	
 	virtual void HighlightActor(EInteractionType IteractionType) override;
 	virtual void UnHighlightActor() override;
+
+	
 };

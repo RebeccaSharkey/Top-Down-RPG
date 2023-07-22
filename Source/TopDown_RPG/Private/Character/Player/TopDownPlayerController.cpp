@@ -30,6 +30,13 @@ ATopDownPlayerController::ATopDownPlayerController()
 void ATopDownPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	TopDownPlayer = Cast<ATopDownPlayer>(GetPawn());
+	if(TopDownPlayer)
+	{
+		TopDownPlayer->CameraSpringArm->TargetArmLength = TargetCameraZoomDistance;
+	}
+	
 	check(CameraMappingContext);
 	
 	if(UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))

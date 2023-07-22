@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Character/Player/TopDownPlayerState.h"
 #include "Components/DecalComponent.h"
 #include "Engine/DecalActor.h"
 #include "Interaction/TopDownTargetInterface.h"
@@ -55,14 +56,15 @@ void ATopDownPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
-	DOREPLIFETIME_CONDITION(ATopDownPlayer, TopDownCharacter, COND_None);
-	DOREPLIFETIME_CONDITION(ATopDownPlayer, PathingVariables, COND_None);
+	DOREPLIFETIME(ATopDownPlayer, TopDownCharacter);
+	DOREPLIFETIME(ATopDownPlayer, PathingVariables);
+	DOREPLIFETIME(ATopDownPlayer, TopDownPlayerState);
 }
 
 void ATopDownPlayer::BeginPlay()
 {
 	Super::BeginPlay();	
-
+	
 	/* Only Spawn the Player's Character on the Server as technically it is AI and therefore not directly controlled by the player */
 	if(HasAuthority())
 	{
@@ -76,7 +78,7 @@ void ATopDownPlayer::BeginPlay()
 		CharacterSpawnParams.Instigator = this;
 
 		TopDownCharacter = GetWorld()->SpawnActor<ATopDownCharacter>(TopDownCharacterToSpawn, RootComponent->GetComponentLocation(), RootComponent->GetComponentRotation(), CharacterSpawnParams);
-		TopDownCharacter->CharacterOwner = this;
+		TopDownCharacter->CharacterOwner = this;		
 	}
 
 	if(IsLocallyControlled())
@@ -89,8 +91,7 @@ void ATopDownPlayer::BeginPlay()
 		MousePositionDecal = GetWorld()->SpawnActor<ADecalActor>(GetActorLocation(), FRotator());
 		MousePositionDecal->GetDecal()->DecalSize = FVector(32.0f, 64.0f, 64.0f);
 		MousePositionDecal->SetDecalMaterial(AllowedPosition);
-	}
-	
+	}	
 }
 
 void ATopDownPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -108,19 +109,19 @@ void ATopDownPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	/* Check if the PlayerController has been properly set and set it if not. */
-	if(!PlayerController && IsLocallyControlled())
+	if(!TopDownPlayerController && IsLocallyControlled())
 	{
-		PlayerController = Cast<ATopDownPlayerController>(GetController());
+		TopDownPlayerController = Cast<ATopDownPlayerController>(GetController());
 
 		/* Return if still not set as nothing else should be done. */
-		if(!PlayerController)
+		if(!TopDownPlayerController)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("TOP DOWN PLAYER: Player Controller Not Set."));
 			return;
 		}
 		
 		/* Set the Mapping Context for Player Input. */
-		if(UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		if(UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(TopDownPlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(PointClickMappingContext, 0);
 		}
@@ -130,16 +131,77 @@ void ATopDownPlayer::Tick(float DeltaTime)
 }
 
 
+void ATopDownPlayer::Server_SetPlayerState_Implementation()
+{
+	if(!GetPlayerState())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TopDownPlayer - Server_SetPlayerState: PlayerState not set."));
+		return;
+	}		
+		
+	TopDownPlayerState = Cast<ATopDownPlayerState>(GetPlayerState());
+	if(!TopDownPlayerState)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TopDownPlayer - Server_SetPlayerState: TopDownPlayerState not set."));
+		return;
+	}
+		
+	TopDownPlayerState->SetUpPlayerState();
+	TopDownPlayerState->SetCurrentCharacter(TopDownCharacter);
+}
+
+void ATopDownPlayer::Server_ChangeTopDownCharaterOnPlayerState_Implementation()
+{
+	if(!TopDownPlayerState)
+	{
+		if(!GetPlayerState())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("TopDownPlayer - Server_ChangeTopDownCharaterOnPlayerState: PlayerState not set."));
+			return;
+		}		
+		
+		TopDownPlayerState = Cast<ATopDownPlayerState>(GetPlayerState());
+		if(!TopDownPlayerState)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("TopDownPlayer - Server_ChangeTopDownCharaterOnPlayerState: TopDownPlayerState not set."));
+			return;
+		}
+		
+		TopDownPlayerState->SetUpPlayerState();
+		TopDownPlayerState->SetCurrentCharacter(TopDownCharacter);
+		return;
+	}
+	
+	TopDownPlayerState->SetCurrentCharacter(TopDownCharacter);
+}
+
+void ATopDownPlayer::OnRep_TopDownCharacter()
+{
+	if(!IsLocallyControlled())
+	{
+		return;
+	}
+	
+	if(!TopDownPlayerState)
+	{		
+		/* Sets the Player State for the player to access. */
+		Server_SetPlayerState();
+		return;
+	}
+
+	Server_ChangeTopDownCharaterOnPlayerState();
+}
+
 void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
 {
-	if(!PlayerController || !GetWorld() || !AllowedPosition || !NotAllowedPosition)
+	if(!TopDownPlayerController || !GetWorld() || !AllowedPosition || !NotAllowedPosition)
 	{
 		return;
 	}
 	
 	/* Gets the position under the players mouse */
 	FHitResult Hit;
-	if(!PlayerController->GetHitResultUnderCursor(ECC_Visibility, true, Hit) || Hit.Location.ContainsNaN())
+	if(!TopDownPlayerController->GetHitResultUnderCursor(ECC_Visibility, true, Hit) || Hit.Location.ContainsNaN())
 	{
 		return;
 	}

@@ -8,6 +8,7 @@
 #include "GameFramework/Pawn.h"
 #include "TopDownPlayer.generated.h"
 
+class ATopDownPlayerState;
 class ITopDownTargetInterface;
 class ATopDownCharacter;
 class USpringArmComponent;
@@ -65,13 +66,25 @@ protected:
  *		Player Set Up
  *---------------------------------------------------------------------------------------------------------------------*/
 	
-	TObjectPtr<ATopDownPlayerController> PlayerController;
+	TObjectPtr<ATopDownPlayerController> TopDownPlayerController;
+	
+	UPROPERTY(Replicated)
+	TObjectPtr<ATopDownPlayerState> TopDownPlayerState;	
+
+	UFUNCTION(Server, Reliable)
+	void Server_SetPlayerState();
 
 	UPROPERTY(EditAnywhere, Category = "Player")
 	TSubclassOf<ATopDownCharacter> TopDownCharacterToSpawn;
 	
-	UPROPERTY(EditAnywhere, Replicated, Category = "Player")
+	UPROPERTY(ReplicatedUsing=OnRep_TopDownCharacter)
 	TObjectPtr<ATopDownCharacter> TopDownCharacter;
+	
+	UFUNCTION()
+	void OnRep_TopDownCharacter();
+	
+	UFUNCTION(Server, Reliable)
+	void Server_ChangeTopDownCharaterOnPlayerState();
 	
 	UPROPERTY(EditAnywhere, Replicated, Category = "Player")
 	float TopDownSpeed = 30.f;
@@ -79,6 +92,7 @@ protected:
 /*---------------------------------------------------------------------------------------------------------------------*
  *		Point and Click
  *---------------------------------------------------------------------------------------------------------------------*/
+protected:
 	/* Point and Click */
 	/* TODO: Move the Input to the Player Controller. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
