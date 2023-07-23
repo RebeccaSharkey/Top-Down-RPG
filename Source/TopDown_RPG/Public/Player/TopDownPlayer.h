@@ -8,6 +8,7 @@
 #include "GameFramework/Pawn.h"
 #include "TopDownPlayer.generated.h"
 
+class UGameplayEffect;
 class ATopDownPlayerState;
 class ITopDownTargetInterface;
 class ATopDownCharacter;
@@ -120,6 +121,9 @@ public:
 	/* Movement */
 private:
 	bool bCanMoveToPosition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pathing", meta=(AllowPrivateAccess="true"))
+	TSubclassOf<UGameplayEffect> MovementGameplayEffect;
 	
 	void Click(const FInputActionValue& Value);
 	UFUNCTION(Server, Reliable)

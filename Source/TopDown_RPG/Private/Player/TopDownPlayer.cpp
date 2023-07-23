@@ -8,12 +8,15 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "AbilitySystem/TopDownAbilitySystemComponent.h"
 #include "AbilitySystem/TopDownAttributeSet.h"
 #include "Player/TopDownPlayerState.h"
 #include "Components/DecalComponent.h"
 #include "Engine/DecalActor.h"
 #include "Interaction/TopDownTargetInterface.h"
 #include "Net/UnrealNetwork.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "EntitySystem/MovieScenePropertySystemTypes.h"
 
 FPathingVariables::FPathingVariables()
 {
@@ -202,7 +205,7 @@ void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
 		return;
 	}
 	
-	UTopDownAttributeSet* AttributeSet = CastChecked<UTopDownAttributeSet>(TopDownPlayerState->GetAttributeSet());
+	const UTopDownAttributeSet* AttributeSet = Cast<UTopDownAttributeSet>(TopDownPlayerState->GetAbilitySystemComponent()->GetAttributeSet(UTopDownAttributeSet::StaticClass()));
 	if(!AttributeSet)
 	{
 		return;
@@ -340,8 +343,8 @@ void ATopDownPlayer::Click(const FInputActionValue& Value)
 
 void ATopDownPlayer::Server_MovePlayerCharacter_Implementation(const FPathingVariables& InPathingVariables)
 {
-	UTopDownAttributeSet* AttributeSet = Cast<UTopDownAttributeSet>(TopDownPlayerState->GetAttributeSet());
-	if(!TopDownCharacter || !AttributeSet)
+	UTopDownAbilitySystemComponent* TopDownAbilitySystemComponent = Cast<UTopDownAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TopDownPlayerState));	
+	if(!TopDownCharacter || !TopDownAbilitySystemComponent)
 	{
 		return;
 	}
@@ -349,7 +352,14 @@ void ATopDownPlayer::Server_MovePlayerCharacter_Implementation(const FPathingVar
 	
 	TopDownCharacter->MoveTo(InPathingVariables.TargetLocation);
 
-	/* TODO: Remove length of travel from amount of travel player is allowed. */
-	AttributeSet->SetSpeed(AttributeSet->GetSpeed() - (InPathingVariables.PathLength / 100.f));
+	/* TODO: Remove length of travel from amount of travel player is allowed. */	
+	FGameplayEffectContextHandle EffectContext = TopDownAbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+	
+	const FGameplayEffectSpecHandle EffectSpec = TopDownAbilitySystemComponent->MakeOutgoingSpec(MovementGameplayEffect, 1.f, EffectContext);
+	const FGameplayTag MyTag = FGameplayTag::RequestGameplayTag(FName("MovementTag"));
+	EffectSpec.Data.Get()->SetSetByCallerMagnitude(MyTag,  -(InPathingVariables.PathLength / 100.f));
+	
+	TopDownAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data.Get());
 }
 

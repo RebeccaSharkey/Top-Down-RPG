@@ -192,7 +192,7 @@ void ATopDownPlayerController::CameraMovement(float DeltaTime)
 
 		const FRotator CurrentRot = TopDownPlayer->CameraSpringArm->GetRelativeRotation().GetNormalized();
 
-		TopDownPlayer->CameraSpringArm->SetRelativeRotation(FRotator(FMath::Clamp<float>(CurrentRot.Pitch + (YPercent * 180), -88, 88), CurrentRot.Yaw + (XPercent * 180), 0));
+		TopDownPlayer->CameraSpringArm->SetRelativeRotation(FRotator(FMath::Clamp<float>(CurrentRot.Pitch + (YPercent * 180), -88, 0), CurrentRot.Yaw + (XPercent * 180), 0));
 
 		RotateCameraMouseStart = MouseLocation;
 	}
