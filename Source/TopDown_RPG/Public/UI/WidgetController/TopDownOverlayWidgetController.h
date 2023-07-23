@@ -21,6 +21,7 @@ class TOPDOWN_RPG_API UTopDownOverlayWidgetController : public UTopDownWidgetCon
 
 public:
 	virtual void BroadcastInitialValues() override;
+	virtual void BindCallbacksToDependencies() override;
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FOnHitPointsChangedSignature OnHitPointsChanged;
@@ -31,4 +32,10 @@ public:
 	FOnSpeedChangedSignature OnSpeedChanged;
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FOnMaxSpeedChangedSignature OnMaxSpeedChanged;
+
+protected:
+	void HitPointsChanged(const FOnAttributeChangeData& Data) const;
+	void MaxHitPointsChanged(const FOnAttributeChangeData& Data) const;
+	void SpeedChanged(const FOnAttributeChangeData& Data) const;
+	void MaxSpeedChanged(const FOnAttributeChangeData& Data) const;
 };

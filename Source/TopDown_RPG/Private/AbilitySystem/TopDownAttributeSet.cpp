@@ -6,7 +6,7 @@
 
 UTopDownAttributeSet::UTopDownAttributeSet()
 {
-	InitHitPoints(20.f);
+	InitHitPoints(10.f);
 	InitMaxHitPoints(20.f);
 	InitSpeed(10.f);
 	InitMaxSpeed(10.f);

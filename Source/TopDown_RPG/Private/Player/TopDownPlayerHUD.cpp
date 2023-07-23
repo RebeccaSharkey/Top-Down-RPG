@@ -28,6 +28,7 @@ void ATopDownPlayerHUD::InitTopDownPlayerOverlay(APlayerController* PC, APlayerS
 
 	TopDownOverlayWidgetController = NewObject<UTopDownOverlayWidgetController>(this, TopDownOverlayWidgetControllerClass);
 	TopDownOverlayWidgetController->SetWidgetControllerParams(WidgetControllerParams);
+	TopDownOverlayWidgetController->BindCallbacksToDependencies();
 
 	TopDownPlayerOverlay->SetWidgetController(TopDownOverlayWidgetController);
 	

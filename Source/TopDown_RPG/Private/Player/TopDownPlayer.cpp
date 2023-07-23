@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "AbilitySystem/TopDownAttributeSet.h"
 #include "Player/TopDownPlayerState.h"
 #include "Components/DecalComponent.h"
 #include "Engine/DecalActor.h"
@@ -189,8 +190,20 @@ void ATopDownPlayer::ChangeTopDownCharaterOnPlayerState()
 }
 
 void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
-{
-	if(!TopDownPlayerController || !GetWorld() || !AllowedPosition || !NotAllowedPosition)
+{	
+	
+	if(!TopDownPlayerController || !GetWorld() || !AllowedPosition || !NotAllowedPosition || !TopDownPlayerState)
+	{
+		return;
+	}
+
+	if(!TopDownPlayerState->GetAttributeSet())
+	{
+		return;
+	}
+	
+	UTopDownAttributeSet* AttributeSet = CastChecked<UTopDownAttributeSet>(TopDownPlayerState->GetAttributeSet());
+	if(!AttributeSet)
 	{
 		return;
 	}
@@ -286,7 +299,7 @@ void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
 	}
 	
 	/* TODO: Set Up Player movement amount and check if the length of the path is allowed partially implemented below. */
-	if(PathingVariables.PathLength > TopDownSpeed * 100.f)
+	if(PathingVariables.PathLength > AttributeSet->GetSpeed() * 100.f)
 	{		
 		MousePositionDecal->SetDecalMaterial(NotAllowedPosition);		
 		bCanMoveToPosition = false;
@@ -322,17 +335,21 @@ void ATopDownPlayer::Click(const FInputActionValue& Value)
 		return;
 	}
 
-	Server_MovePlayerCharacter(PathingVariables.TargetLocation);	
+	Server_MovePlayerCharacter(PathingVariables);	
 }
 
-void ATopDownPlayer::Server_MovePlayerCharacter_Implementation(FVector TargetLocation)
+void ATopDownPlayer::Server_MovePlayerCharacter_Implementation(const FPathingVariables& InPathingVariables)
 {
-	if(!TopDownCharacter)
+	UTopDownAttributeSet* AttributeSet = Cast<UTopDownAttributeSet>(TopDownPlayerState->GetAttributeSet());
+	if(!TopDownCharacter || !AttributeSet)
 	{
 		return;
 	}
 	
+	
+	TopDownCharacter->MoveTo(InPathingVariables.TargetLocation);
+
 	/* TODO: Remove length of travel from amount of travel player is allowed. */
-	TopDownCharacter->MoveTo(TargetLocation);
+	AttributeSet->SetSpeed(AttributeSet->GetSpeed() - (InPathingVariables.PathLength / 100.f));
 }
 

@@ -123,5 +123,5 @@ private:
 	
 	void Click(const FInputActionValue& Value);
 	UFUNCTION(Server, Reliable)
-	void Server_MovePlayerCharacter(FVector TargetLocation);
+	void Server_MovePlayerCharacter(const FPathingVariables& InPathingVariables);
 };

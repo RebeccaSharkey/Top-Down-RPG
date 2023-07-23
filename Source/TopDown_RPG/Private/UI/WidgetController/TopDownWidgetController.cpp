@@ -15,3 +15,8 @@ void UTopDownWidgetController::BroadcastInitialValues()
 {
 	
 }
+
+void UTopDownWidgetController::BindCallbacksToDependencies()
+{
+	
+}
