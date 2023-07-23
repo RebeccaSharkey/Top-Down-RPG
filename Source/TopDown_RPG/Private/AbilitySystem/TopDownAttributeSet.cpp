@@ -2,12 +2,14 @@
 
 
 #include "AbilitySystem/TopDownAttributeSet.h"
-#include "AbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 
 UTopDownAttributeSet::UTopDownAttributeSet()
 {
-	
+	InitHitPoints(20.f);
+	InitMaxHitPoints(20.f);
+	InitSpeed(10.f);
+	InitMaxSpeed(10.f);
 }
 
 void UTopDownAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
