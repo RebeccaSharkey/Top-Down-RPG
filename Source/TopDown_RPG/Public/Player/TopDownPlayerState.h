@@ -34,7 +34,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Replicated, Category="PlayerVariables")
 	TObjectPtr<ATopDownPlayerController> TopDownPlayerController;
 	
-	UPROPERTY(VisibleAnywhere, Replicated, Category="PlayerVariables")
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_CurrentTopDownCharacter, Category="PlayerVariables")
 	TObjectPtr<ATopDownCharacter> CurrentTopDownCharacter;
 	UPROPERTY(VisibleAnywhere, Replicated, Category="PlayerVariables")
 	TObjectPtr<UAbilitySystemComponent> CurrentCharactersAbilitySystemComponent;
@@ -46,4 +46,8 @@ public:
 	UAttributeSet* GetAttributeSet() const;
 
 	void SetCurrentCharacter(ATopDownCharacter* CurrentCharacter);
+
+private:
+	UFUNCTION()
+	void OnRep_CurrentTopDownCharacter();
 };

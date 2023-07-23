@@ -99,7 +99,7 @@ protected:
 private:
 	void CheckCurrentCursorPosition(float DeltaTime);
 
-	ITopDownTargetInterface* TopDownTarget;
+	TObjectPtr<ITopDownTargetInterface> TopDownTarget;
 	
 	UFUNCTION(Server, Reliable)
 	void Server_CheckPlayerCharacterPath(FVector TargetLocation);

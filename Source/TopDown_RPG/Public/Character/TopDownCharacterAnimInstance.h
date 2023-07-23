@@ -23,9 +23,9 @@ public:
 
 private:
 	UPROPERTY(BlueprintReadOnly, Category="Character", meta=(AllowPrivateAccess="true"))
-	ATopDownCharacterBase* TopDownCharacter;
+	TObjectPtr<ATopDownCharacterBase> TopDownCharacter;
 	UPROPERTY(BlueprintReadOnly, Category="Character", meta=(AllowPrivateAccess="true"))
-	UMovementComponent* MovementComponent;
+	TObjectPtr<UMovementComponent> MovementComponent;
 
 protected:
 	virtual void SetVariables(const float DeltaSeconds);

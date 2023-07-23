@@ -5,6 +5,8 @@
 #include "Player/TopDownPlayerController.h"
 #include "Character/PlayerCharacter/TopDownCharacter.h"
 #include "Net/UnrealNetwork.h"
+#include "Player/TopDownPlayer.h"
+#include "Player/TopDownPlayerHUD.h"
 
 ATopDownPlayerState::ATopDownPlayerState()
 {
@@ -64,9 +66,7 @@ UAttributeSet* ATopDownPlayerState::GetAttributeSet() const
 
 void ATopDownPlayerState::SetCurrentCharacter(ATopDownCharacter* CurrentCharacter)
 {
-	CurrentTopDownCharacter = CurrentCharacter;
-
-	if(CurrentTopDownCharacter)
+	if(CurrentCharacter)
 	{
 		CurrentCharactersAbilitySystemComponent = CurrentCharacter->GetAbilitySystemComponent();
 		CurrentCharactersAttributeSet = CurrentCharacter->GetAttributeSet();		
@@ -76,4 +76,27 @@ void ATopDownPlayerState::SetCurrentCharacter(ATopDownCharacter* CurrentCharacte
 		CurrentCharactersAbilitySystemComponent = nullptr;
 		CurrentCharactersAttributeSet = nullptr;
 	}
+	
+	CurrentTopDownCharacter = CurrentCharacter;
+}
+
+void ATopDownPlayerState::OnRep_CurrentTopDownCharacter()
+{
+	if(!TopDownPlayer || !TopDownPlayerController || !CurrentTopDownCharacter || !CurrentCharactersAbilitySystemComponent || !CurrentCharactersAttributeSet)
+	{
+		return;
+	}
+
+	if(!TopDownPlayer->IsLocallyControlled())
+	{
+		 return;
+	}
+
+	ATopDownPlayerHUD* TopDownPlayerHUD = Cast<ATopDownPlayerHUD>(TopDownPlayerController->GetHUD());
+	if(!TopDownPlayerHUD)
+	{
+		return;
+	}
+
+	TopDownPlayerHUD->InitTopDownPlayerOverlay(TopDownPlayerController, this, CurrentCharactersAbilitySystemComponent, CurrentCharactersAttributeSet);
 }

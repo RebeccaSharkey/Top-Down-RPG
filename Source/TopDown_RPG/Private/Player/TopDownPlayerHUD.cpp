@@ -4,6 +4,7 @@
 #include "Player/TopDownPlayerHUD.h"
 #include "Blueprint/UserWidget.h"
 #include "UI/Widget/TopDownUserWidget.h"
+#include "UI/WidgetController/TopDownOverlayWidgetController.h"
 
 void ATopDownPlayerHUD::BeginPlay()
 {
@@ -12,20 +13,31 @@ void ATopDownPlayerHUD::BeginPlay()
 	AddTopDownPlayerOverlay();
 }
 
-void ATopDownPlayerHUD::AddTopDownPlayerOverlay()
+void ATopDownPlayerHUD::InitTopDownPlayerOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC,
+	UAttributeSet* AS)
 {
-	APlayerController* PlayerController = GetOwningPlayerController();
-	if(!PlayerController || !TopDownPlayerOverlayToSpawn)
-	{
-		return;
-	}
+	checkf(TopDownPlayerOverlayToSpawn, TEXT("TopDownPlayerHUD - InitTopDownPlayerOverlay: TopDownPlayerOverlayToSpawn unititialized"));
+	checkf(TopDownOverlayWidgetControllerClass, TEXT("TopDownPlayerHUD - InitTopDownPlayerOverlay: TopDownOverlayWidgetControllerClass unititialized"));
 
 	if(!TopDownPlayerOverlay)
 	{		
-		TopDownPlayerOverlay = CreateWidget<UTopDownUserWidget>(PlayerController, TopDownPlayerOverlayToSpawn);
-		TopDownPlayerOverlay->AddToViewport();
+		TopDownPlayerOverlay = CreateWidget<UTopDownUserWidget>(PC, TopDownPlayerOverlayToSpawn);
 	}
-	else
+
+	const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
+
+	TopDownOverlayWidgetController = NewObject<UTopDownOverlayWidgetController>(this, TopDownOverlayWidgetControllerClass);
+	TopDownOverlayWidgetController->SetWidgetControllerParams(WidgetControllerParams);
+
+	TopDownPlayerOverlay->SetWidgetController(TopDownOverlayWidgetController);
+	
+	TopDownPlayerOverlay->AddToViewport();
+	AddTopDownPlayerOverlay();
+}
+
+void ATopDownPlayerHUD::AddTopDownPlayerOverlay() const
+{
+	if(TopDownPlayerOverlay)
 	{
 		TopDownPlayerOverlay->SetVisibility(ESlateVisibility::Visible);
 	}
@@ -37,4 +49,11 @@ void ATopDownPlayerHUD::RemoveTopDownPlayerOverlay() const
 	{
 		TopDownPlayerOverlay->SetVisibility(ESlateVisibility::Hidden);
 	}
+}
+
+UTopDownOverlayWidgetController* ATopDownPlayerHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
+{
+	checkf(TopDownOverlayWidgetController, TEXT("TopDownPlayerHUD - GetOverlayWidgetController: TopDownOverlayWidgetController not set."));
+
+	return TopDownOverlayWidgetController;
 }

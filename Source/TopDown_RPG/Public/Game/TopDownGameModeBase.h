@@ -20,7 +20,7 @@ public:
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
 private:
-	TArray<AActor*> PlayerStarts;
+	TArray<TObjectPtr<AActor>> PlayerStarts;
 
 	int32 CurrentPlayerIndex = 0;
 	
