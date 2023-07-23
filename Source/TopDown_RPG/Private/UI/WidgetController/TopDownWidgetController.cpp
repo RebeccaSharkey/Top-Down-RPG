@@ -10,3 +10,8 @@ void UTopDownWidgetController::SetWidgetControllerParams(const FWidgetController
 	AbilitySystemComponent = WCParams.AbilitySystemComponent;
 	AttributeSet = WCParams.AttributeSet;
 }
+
+void UTopDownWidgetController::BroadcastInitialValues()
+{
+	
+}

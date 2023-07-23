@@ -31,6 +31,8 @@ void ATopDownPlayerHUD::InitTopDownPlayerOverlay(APlayerController* PC, APlayerS
 
 	TopDownPlayerOverlay->SetWidgetController(TopDownOverlayWidgetController);
 	
+	TopDownOverlayWidgetController->BroadcastInitialValues();
+	
 	TopDownPlayerOverlay->AddToViewport();
 	AddTopDownPlayerOverlay();
 }

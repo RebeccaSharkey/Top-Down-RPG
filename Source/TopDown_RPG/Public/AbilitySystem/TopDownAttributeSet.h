@@ -23,9 +23,11 @@ class TOPDOWN_RPG_API UTopDownAttributeSet : public UAttributeSet
 
 public:
 	UTopDownAttributeSet();
+	
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_HitPoints, Category="Primary Attributes")
 	FGameplayAttributeData HitPoints;
 	UFUNCTION()
