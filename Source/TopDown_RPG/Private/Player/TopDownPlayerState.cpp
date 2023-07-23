@@ -1,10 +1,8 @@
 // Copyright Spxcebxr Games
 
 
-#include "Character/Player/TopDownPlayerState.h"
-#include "AbilitySystem/TopDownAbilitySystemComponent.h"
-#include "AbilitySystem/TopDownAttributeSet.h"
-#include "Character/Player/TopDownPlayerController.h"
+#include "Player/TopDownPlayerState.h"
+#include "Player/TopDownPlayerController.h"
 #include "Character/PlayerCharacter/TopDownCharacter.h"
 #include "Net/UnrealNetwork.h"
 

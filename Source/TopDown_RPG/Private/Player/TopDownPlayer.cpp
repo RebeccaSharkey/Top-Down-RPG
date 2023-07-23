@@ -1,14 +1,14 @@
 // Copyright Spxcebxr Games
 
 
-#include "Character/Player/TopDownPlayer.h"
-#include "Character/Player/TopDownPlayerController.h"
+#include "Player/TopDownPlayer.h"
+#include "Player/TopDownPlayerController.h"
 #include "Character/PlayerCharacter/TopDownCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Character/Player/TopDownPlayerState.h"
+#include "Player/TopDownPlayerState.h"
 #include "Components/DecalComponent.h"
 #include "Engine/DecalActor.h"
 #include "Interaction/TopDownTargetInterface.h"

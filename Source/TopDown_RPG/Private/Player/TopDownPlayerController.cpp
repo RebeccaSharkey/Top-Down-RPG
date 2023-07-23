@@ -1,8 +1,8 @@
 // Copyright Spxcebxr Games
 
 
-#include "Character/Player/TopDownPlayerController.h"
-#include "Character/Player/TopDownPlayer.h"
+#include "Player/TopDownPlayerController.h"
+#include "Player/TopDownPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/SpringArmComponent.h"

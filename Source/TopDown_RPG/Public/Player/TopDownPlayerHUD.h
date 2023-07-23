@@ -6,7 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "TopDownPlayerHUD.generated.h"
 
-class UTopDownPlayerOverlay;
+class UTopDownUserWidget;
 /**
  * 
  */
@@ -20,12 +20,10 @@ public:
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category="PlayerOverlay", meta=(AllowPrivateAccess="True"))
-	TSubclassOf<UUserWidget> TopDownPlayerOverlayToSpawn;	
-	TObjectPtr<UTopDownPlayerOverlay> TopDownPlayerOverlay;
+	TSubclassOf<UTopDownUserWidget> TopDownPlayerOverlayToSpawn;	
+	TObjectPtr<UTopDownUserWidget> TopDownPlayerOverlay;
 
 public:
 	void AddTopDownPlayerOverlay();
 	void RemoveTopDownPlayerOverlay() const;
-	UTopDownPlayerOverlay* GetTopDownPlayerOverlay() const;
-
 };

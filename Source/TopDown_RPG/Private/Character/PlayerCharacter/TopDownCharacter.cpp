@@ -3,7 +3,7 @@
 
 #include "Character/PlayerCharacter/TopDownCharacter.h"
 #include "Character/PlayerCharacter/TopDownCharacterController.h"
-#include "Character/Player/TopDownPlayer.h"
+#include "Player/TopDownPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AIController.h"
 #include "NavigationPath.h"
@@ -11,7 +11,7 @@
 #include "Net/UnrealNetwork.h"
 #include "AbilitySystem/TopDownAbilitySystemComponent.h"
 #include "AbilitySystem/TopDownAttributeSet.h"
-#include "Character/Player/TopDownPlayerState.h"
+#include "Player/TopDownPlayerState.h"
 
 ATopDownCharacter::ATopDownCharacter()
 {	

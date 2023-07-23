@@ -1,10 +1,9 @@
 // Copyright Spxcebxr Games
 
 
-#include "Character/Player/TopDownPlayerHUD.h"
-
+#include "Player/TopDownPlayerHUD.h"
 #include "Blueprint/UserWidget.h"
-#include "Character/Player/TopDownPlayerOverlay.h"
+#include "UI/Widget/TopDownUserWidget.h"
 
 void ATopDownPlayerHUD::BeginPlay()
 {
@@ -23,9 +22,8 @@ void ATopDownPlayerHUD::AddTopDownPlayerOverlay()
 
 	if(!TopDownPlayerOverlay)
 	{		
-		TopDownPlayerOverlay = CreateWidget<UTopDownPlayerOverlay>(PlayerController, TopDownPlayerOverlayToSpawn);
+		TopDownPlayerOverlay = CreateWidget<UTopDownUserWidget>(PlayerController, TopDownPlayerOverlayToSpawn);
 		TopDownPlayerOverlay->AddToViewport();
-		TopDownPlayerOverlay->OverlaySetup();
 	}
 	else
 	{
@@ -39,9 +37,4 @@ void ATopDownPlayerHUD::RemoveTopDownPlayerOverlay() const
 	{
 		TopDownPlayerOverlay->SetVisibility(ESlateVisibility::Hidden);
 	}
-}
-
-UTopDownPlayerOverlay* ATopDownPlayerHUD::GetTopDownPlayerOverlay() const
-{
-	return TopDownPlayerOverlay;
 }
