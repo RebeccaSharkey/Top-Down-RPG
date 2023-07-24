@@ -82,9 +82,6 @@ protected:
 		
 	void ChangeTopDownCharaterOnPlayerState();
 	
-	UPROPERTY(EditAnywhere, Replicated, Category = "Player")
-	float TopDownSpeed = 30.f;
-	
 /*---------------------------------------------------------------------------------------------------------------------*
  *		Point and Click
  *---------------------------------------------------------------------------------------------------------------------*/

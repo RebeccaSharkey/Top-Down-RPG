@@ -58,23 +58,26 @@ private:
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_bIsPlayersTurnChange, Category="PlayerVariables")
 	bool bIsPlayersTurn;
 
+public:
+	void SetPlayerTurn(bool bInTurn);
+
+private:
 	UFUNCTION()
 	void OnRep_bIsPlayersTurnChange();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pathing", meta=(AllowPrivateAccess="true"))
+	TSubclassOf<UGameplayEffect> StartTurnGameplayEffect;
+	
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerTurnChangedHandle OnPlayerTurnChanged;
 	
-	void SetPlayerTurn(bool bInTurn);
 	bool GetPlayerTurn() const;
-
 	void PlayerRequestedEndTurn();
 	
 private:
 	UFUNCTION(Server, Reliable)
 	void Server_EndTurn();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pathing", meta=(AllowPrivateAccess="true"))
-	TSubclassOf<UGameplayEffect> StartTurnGameplayEffect;
 	
 };

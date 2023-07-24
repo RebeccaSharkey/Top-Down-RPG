@@ -36,6 +36,7 @@ private:
 public:
 	ATopDownPlayer* GetTopDownPlayer() const;
 	void SetPlayerIndex(int32 NewPlayerIndex);
+	int32 GetPlayerIndex() const { return PlayerIndex; };
 	
 /*---------------------------------------------------------------------------------------------------------------------*
  *		Input

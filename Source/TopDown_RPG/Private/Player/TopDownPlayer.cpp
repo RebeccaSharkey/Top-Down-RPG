@@ -192,36 +192,42 @@ void ATopDownPlayer::ChangeTopDownCharaterOnPlayerState()
 }
 
 void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
-{	
-	
+{		
 	if(!TopDownPlayerController || !GetWorld() || !AllowedPosition || !NotAllowedPosition || !TopDownPlayerState)
 	{
+		bCanMoveToPosition = false;
 		return;
-	}
-
-	if(!TopDownPlayerState->GetAttributeSet())
-	{
-		return;
-	}
-	
-	const UTopDownAttributeSet* AttributeSet = Cast<UTopDownAttributeSet>(TopDownPlayerState->GetAbilitySystemComponent()->GetAttributeSet(UTopDownAttributeSet::StaticClass()));
-	if(!AttributeSet)
-	{
-		return;
-	}
+	}	
 	
 	/* Gets the position under the players mouse */
 	FHitResult Hit;
 	if(!TopDownPlayerController->GetHitResultUnderCursor(ECC_Visibility, true, Hit) || Hit.Location.ContainsNaN())
 	{
+		bCanMoveToPosition = false;
 		return;
 	}
 
 	if(!MousePositionDecal)
 	{
+		bCanMoveToPosition = false;
 		return;
 	}
 
+	if(!TopDownPlayerState->GetAttributeSet())
+	{
+		MousePositionDecal->GetDecal()->SetVisibility(false);
+		bCanMoveToPosition = false;
+		return;
+	}
+
+	const UTopDownAttributeSet* AttributeSet = Cast<UTopDownAttributeSet>(TopDownPlayerState->GetAbilitySystemComponent()->GetAttributeSet(UTopDownAttributeSet::StaticClass()));
+	if(!AttributeSet)
+	{
+		MousePositionDecal->GetDecal()->SetVisibility(false);
+		bCanMoveToPosition = false;
+		return;
+	}
+	
 	/* Checks to see if ATopDownCharacterBase was hit if so don't do path finding as can't move here. */
 	ITopDownTargetInterface* CurrentActor = Cast<ITopDownTargetInterface>(Hit.GetActor());
 	if(CurrentActor)
@@ -270,15 +276,22 @@ void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
 		
 		return;
 	}
-	
-	MousePositionDecal->GetDecal()->SetVisibility(true);
-		
+
 	/* Unhighlights the Old Target if there was one. */
 	if(TopDownTarget)
 	{		
 		TopDownTarget->UnHighlightActor();
 		TopDownTarget = nullptr;
-	}	
+	}
+	
+	if(!TopDownPlayerState->GetPlayerTurn())
+	{		
+		MousePositionDecal->GetDecal()->SetVisibility(false);
+		bCanMoveToPosition = false;
+		return;
+	}
+	
+	MousePositionDecal->GetDecal()->SetVisibility(true);		
 	
 	/* Moves Decal to be used for player feedback */
 	if(!MousePositionDecal->IsHidden())
@@ -332,12 +345,32 @@ void ATopDownPlayer::SetPathingVariables(FVector TargetLocation, FNavPathSharedP
 /* Movement */
 void ATopDownPlayer::Click(const FInputActionValue& Value)
 {
-	if(!bCanMoveToPosition || !TopDownPlayerState->GetPlayerTurn())
+	if(!IsLocallyControlled())
 	{
 		return;
 	}
+	
+	if(!TopDownTarget)
+	{		
+		if(!bCanMoveToPosition || !TopDownPlayerState->GetPlayerTurn())
+		{
+			return;
+		}
 
-	Server_MovePlayerCharacter(PathingVariables);	
+		Server_MovePlayerCharacter(PathingVariables);
+		return;
+	}
+
+	const AActor* Actor = Cast<ATopDownCharacterBase>(TopDownTarget);
+	if(TopDownPlayerState->GetPlayerTurn())
+	{		
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("Player_%i: Clicked on %s while their turn."), TopDownPlayerController->GetPlayerIndex(), *Actor->GetName()));
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("Player_%i: Clicked on %s while not their turn."), TopDownPlayerController->GetPlayerIndex(), *Actor->GetName()));
+	}
+		
 }
 
 void ATopDownPlayer::Server_MovePlayerCharacter_Implementation(const FPathingVariables& InPathingVariables)

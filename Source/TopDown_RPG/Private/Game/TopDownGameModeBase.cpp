@@ -4,6 +4,7 @@
 #include "Game/TopDownGameModeBase.h"
 #include "Game/TopDownPlayerStart.h"
 #include "Kismet/GameplayStatics.h"
+#include "Player/TopDownPlayer.h"
 #include "Player/TopDownPlayerController.h"
 #include "Player/TopDownPlayerState.h"
 
@@ -46,8 +47,9 @@ void ATopDownGameModeBase::PostLogin(APlayerController* NewPlayer)
 
 	if(ATopDownPlayerState* PlayerState = NewPlayer->GetPlayerState<ATopDownPlayerState>())
 	{
-		Cast<ATopDownPlayerController>(NewPlayer)->SetPlayerIndex(CurrentPlayerIndex);
-
+		ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(NewPlayer);
+		TopDownPlayerController->SetPlayerIndex(CurrentPlayerIndex);
+		
 		TopDownPlayerStates.Add(PlayerState);
 		
 		if(CurrentPlayerIndex == 0)
