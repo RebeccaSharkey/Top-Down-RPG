@@ -16,7 +16,6 @@
 #include "Interaction/TopDownTargetInterface.h"
 #include "Net/UnrealNetwork.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "EntitySystem/MovieScenePropertySystemTypes.h"
 
 FPathingVariables::FPathingVariables()
 {

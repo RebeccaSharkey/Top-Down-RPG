@@ -2,12 +2,15 @@
 
 
 #include "Player/TopDownPlayerState.h"
+#include "GameplayEffectTypes.h"
+#include "AbilitySystem/TopDownAbilitySystemComponent.h"
 #include "Player/TopDownPlayerController.h"
 #include "Character/PlayerCharacter/TopDownCharacter.h"
 #include "Game/TopDownGameModeBase.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/TopDownPlayer.h"
 #include "Player/TopDownPlayerHUD.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 ATopDownPlayerState::ATopDownPlayerState()
 {
@@ -119,6 +122,25 @@ void ATopDownPlayerState::OnRep_bIsPlayersTurnChange()
 void ATopDownPlayerState::SetPlayerTurn(bool bInTurn)
 {
 	bIsPlayersTurn = bInTurn;
+
+	if(!bIsPlayersTurn)
+	{
+		return;
+	}
+
+	UTopDownAbilitySystemComponent* TopDownAbilitySystemComponent = Cast<UTopDownAbilitySystemComponent>(CurrentCharactersAbilitySystemComponent);
+
+	if(!TopDownAbilitySystemComponent)
+	{
+		return;
+	}
+	
+	FGameplayEffectContextHandle EffectContext = TopDownAbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	const FGameplayEffectSpecHandle EffectSpec = TopDownAbilitySystemComponent->MakeOutgoingSpec(StartTurnGameplayEffect, 1.f, EffectContext);
+
+	TopDownAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data.Get());
 }
 
 bool ATopDownPlayerState::GetPlayerTurn() const
@@ -136,5 +158,12 @@ void ATopDownPlayerState::PlayerRequestedEndTurn()
 
 void ATopDownPlayerState::Server_EndTurn_Implementation()
 {
-	Cast<ATopDownGameModeBase>(GetWorld()->GetAuthGameMode())->EndTurn();
+	ATopDownGameModeBase* TopDownGameModeBase = Cast<ATopDownGameModeBase>(GetWorld()->GetAuthGameMode());
+
+	if(!TopDownGameModeBase)
+	{
+		return;
+	}
+	
+	TopDownGameModeBase->EndTurn();
 }

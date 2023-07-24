@@ -14,6 +14,7 @@ class ATopDownPlayerController;
 class ATopDownPlayer;
 class UAbilitySystemComponent;
 class UAttributeSet;
+class UGameplayEffect;
 
 /**
  * 
@@ -53,6 +54,7 @@ private:
 	UFUNCTION()
 	void OnRep_CurrentTopDownCharacter();
 
+	/* Players Turns Set Up */
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_bIsPlayersTurnChange, Category="PlayerVariables")
 	bool bIsPlayersTurn;
 
@@ -67,9 +69,12 @@ public:
 	bool GetPlayerTurn() const;
 
 	void PlayerRequestedEndTurn();
+	
 private:
-
 	UFUNCTION(Server, Reliable)
 	void Server_EndTurn();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Pathing", meta=(AllowPrivateAccess="true"))
+	TSubclassOf<UGameplayEffect> StartTurnGameplayEffect;
 	
 };
