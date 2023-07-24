@@ -4,6 +4,7 @@
 #include "Player/TopDownPlayerState.h"
 #include "Player/TopDownPlayerController.h"
 #include "Character/PlayerCharacter/TopDownCharacter.h"
+#include "Game/TopDownGameModeBase.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/TopDownPlayer.h"
 #include "Player/TopDownPlayerHUD.h"
@@ -28,6 +29,7 @@ void ATopDownPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(ATopDownPlayerState, CurrentTopDownCharacter);
 	DOREPLIFETIME(ATopDownPlayerState, CurrentCharactersAbilitySystemComponent);
 	DOREPLIFETIME(ATopDownPlayerState, CurrentCharactersAttributeSet);
+	DOREPLIFETIME(ATopDownPlayerState, bIsPlayersTurn);
 }
 
 void ATopDownPlayerState::SetUpPlayerState(ATopDownPlayer* NewTopDownPlayer)
@@ -99,4 +101,40 @@ void ATopDownPlayerState::OnRep_CurrentTopDownCharacter()
 	}
 
 	TopDownPlayerHUD->InitTopDownPlayerOverlay(TopDownPlayerController, this, CurrentCharactersAbilitySystemComponent, CurrentCharactersAttributeSet);
+}
+
+void ATopDownPlayerState::OnRep_bIsPlayersTurnChange()
+{
+	if(!TopDownPlayer)
+	{
+		return;
+	}
+	
+	if(TopDownPlayer->IsLocallyControlled())
+	{
+		OnPlayerTurnChanged.Broadcast(bIsPlayersTurn);
+	}
+}
+
+void ATopDownPlayerState::SetPlayerTurn(bool bInTurn)
+{
+	bIsPlayersTurn = bInTurn;
+}
+
+bool ATopDownPlayerState::GetPlayerTurn() const
+{
+	return bIsPlayersTurn;
+}
+
+void ATopDownPlayerState::PlayerRequestedEndTurn()
+{
+	if(bIsPlayersTurn)
+	{		
+		Server_EndTurn();
+	}
+}
+
+void ATopDownPlayerState::Server_EndTurn_Implementation()
+{
+	Cast<ATopDownGameModeBase>(GetWorld()->GetAuthGameMode())->EndTurn();
 }

@@ -4,10 +4,14 @@
 #include "UI/WidgetController/TopDownOverlayWidgetController.h"
 
 #include "AbilitySystem/TopDownAttributeSet.h"
+#include "Player/TopDownPlayerState.h"
 
 void UTopDownOverlayWidgetController::BroadcastInitialValues()
 {
 	//Super::BroadcastInitialValues();
+	const ATopDownPlayerState* TopDownPlayerState = CastChecked<ATopDownPlayerState>(PlayerState);
+	
+	OnPlayerTurnChanged.Broadcast(TopDownPlayerState->GetPlayerTurn());
 
 	const UTopDownAttributeSet* TopDownAttributeSet = CastChecked<UTopDownAttributeSet>(AttributeSet);
 	
@@ -21,7 +25,10 @@ void UTopDownOverlayWidgetController::BroadcastInitialValues()
 void UTopDownOverlayWidgetController::BindCallbacksToDependencies()
 {
 	//Super::BindCallbacksToDependencies();
+	ATopDownPlayerState* TopDownPlayerState = CastChecked<ATopDownPlayerState>(PlayerState);
 
+	TopDownPlayerState->OnPlayerTurnChanged.AddDynamic(this, &UTopDownOverlayWidgetController::PlayerTurnChanged);
+	
 	const UTopDownAttributeSet* TopDownAttributeSet = CastChecked<UTopDownAttributeSet>(AttributeSet);
 	
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
@@ -57,3 +64,18 @@ void UTopDownOverlayWidgetController::MaxSpeedChanged(const FOnAttributeChangeDa
 {
 	OnMaxSpeedChanged.Broadcast(Data.NewValue);
 }
+
+void UTopDownOverlayWidgetController::PlayerTurnChanged(bool bNewTurn)
+{
+	OnPlayerTurnChanged.Broadcast(bNewTurn);
+}
+
+void UTopDownOverlayWidgetController::PlayerRequestedTurnChange()
+{
+	ATopDownPlayerState* TopDownPlayerState = CastChecked<ATopDownPlayerState>(PlayerState);
+	if(TopDownPlayerState)
+	{
+		TopDownPlayerState->PlayerRequestedEndTurn();
+	}
+}
+

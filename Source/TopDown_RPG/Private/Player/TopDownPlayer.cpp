@@ -301,7 +301,7 @@ void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
 		return;
 	}
 	
-	/* TODO: Set Up Player movement amount and check if the length of the path is allowed partially implemented below. */
+	/* Check if the length of the path is allowed - partially implemented below. */
 	if(PathingVariables.PathLength > AttributeSet->GetSpeed() * 100.f)
 	{		
 		MousePositionDecal->SetDecalMaterial(NotAllowedPosition);		
@@ -333,7 +333,7 @@ void ATopDownPlayer::SetPathingVariables(FVector TargetLocation, FNavPathSharedP
 /* Movement */
 void ATopDownPlayer::Click(const FInputActionValue& Value)
 {
-	if(!bCanMoveToPosition)
+	if(!bCanMoveToPosition || !TopDownPlayerState->GetPlayerTurn())
 	{
 		return;
 	}

@@ -24,14 +24,18 @@ public:
 	
 protected:	
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void SetupInputComponent() override;
 	virtual void Tick(float DeltaSeconds) override;
 
 private:
 	TObjectPtr<ATopDownPlayer> TopDownPlayer;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category="Player", meta = (AllowPrivateAccess = "true"))
+	int32 PlayerIndex = -1;
 
 public:
 	ATopDownPlayer* GetTopDownPlayer() const;
+	void SetPlayerIndex(int32 NewPlayerIndex);
 	
 /*---------------------------------------------------------------------------------------------------------------------*
  *		Input

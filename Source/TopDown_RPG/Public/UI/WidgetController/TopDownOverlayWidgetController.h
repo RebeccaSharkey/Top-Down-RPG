@@ -11,6 +11,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHitPointsChangedSignature, flo
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSpeedChangedSignature, float, NewSpeed);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxSpeedChangedSignature, float, NewMaxSpeed);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerTurnChangedSignature, bool, NewIsTurn);
+
 /**
  * 
  */
@@ -33,9 +35,20 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FOnMaxSpeedChangedSignature OnMaxSpeedChanged;
 
+	UPROPERTY(BlueprintAssignable, Category="Player|Attributes")
+	FOnPlayerTurnChangedSignature OnPlayerTurnChanged;
+	
+
 protected:
 	void HitPointsChanged(const FOnAttributeChangeData& Data) const;
 	void MaxHitPointsChanged(const FOnAttributeChangeData& Data) const;
 	void SpeedChanged(const FOnAttributeChangeData& Data) const;
 	void MaxSpeedChanged(const FOnAttributeChangeData& Data) const;
+	
+	UFUNCTION(BlueprintCallable)
+	void PlayerTurnChanged(bool bNewTurn);
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void PlayerRequestedTurnChange();
 };

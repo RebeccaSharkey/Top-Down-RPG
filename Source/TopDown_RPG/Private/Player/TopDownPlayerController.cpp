@@ -6,6 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Net/UnrealNetwork.h"
 
 
 ATopDownPlayerController::ATopDownPlayerController()
@@ -55,6 +56,13 @@ void ATopDownPlayerController::BeginPlay()
 	
 }
 
+void ATopDownPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ATopDownPlayerController, PlayerIndex);
+}
+
 void ATopDownPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -91,6 +99,11 @@ void ATopDownPlayerController::Tick(float DeltaSeconds)
 ATopDownPlayer* ATopDownPlayerController::GetTopDownPlayer() const
 {
 	return TopDownPlayer;
+}
+
+void ATopDownPlayerController::SetPlayerIndex(int32 NewPlayerIndex)
+{
+	PlayerIndex = NewPlayerIndex;
 }
 
 void ATopDownPlayerController::MoveCamera(const FInputActionValue& Value)

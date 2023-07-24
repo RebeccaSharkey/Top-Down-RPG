@@ -7,6 +7,8 @@
 #include "GameFramework/PlayerState.h"
 #include "TopDownPlayerState.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerTurnChangedHandle, bool, bNewTurn);
+
 class ATopDownCharacter;
 class ATopDownPlayerController;
 class ATopDownPlayer;
@@ -50,4 +52,24 @@ public:
 private:
 	UFUNCTION()
 	void OnRep_CurrentTopDownCharacter();
+
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing=OnRep_bIsPlayersTurnChange, Category="PlayerVariables")
+	bool bIsPlayersTurn;
+
+	UFUNCTION()
+	void OnRep_bIsPlayersTurnChange();
+
+public:
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerTurnChangedHandle OnPlayerTurnChanged;
+	
+	void SetPlayerTurn(bool bInTurn);
+	bool GetPlayerTurn() const;
+
+	void PlayerRequestedEndTurn();
+private:
+
+	UFUNCTION(Server, Reliable)
+	void Server_EndTurn();
+	
 };
