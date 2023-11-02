@@ -1,21 +1,21 @@
 // Copyright Spxcebxr Games
 
 
-#include "Player/TopDownPlayer.h"
-#include "Player/TopDownPlayerController.h"
-#include "Character/PlayerCharacter/TopDownCharacter.h"
-#include "GameFramework/SpringArmComponent.h"
-#include "Camera/CameraComponent.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "AbilitySystem/TopDownAbilitySystemComponent.h"
 #include "AbilitySystem/TopDownAttributeSet.h"
-#include "Player/TopDownPlayerState.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "Camera/CameraComponent.h"
+#include "Character/PlayerCharacter/TopDownCharacter.h"
 #include "Components/DecalComponent.h"
 #include "Engine/DecalActor.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Interaction/TopDownTargetInterface.h"
 #include "Net/UnrealNetwork.h"
-#include "AbilitySystemBlueprintLibrary.h"
+#include "Player/TopDownPlayer.h"
+#include "Player/TopDownPlayerController.h"
+#include "Player/TopDownPlayerState.h"
 
 FPathingVariables::FPathingVariables()
 {
@@ -78,6 +78,11 @@ void ATopDownPlayer::BeginPlay()
 		MousePositionDecal = GetWorld()->SpawnActor<ADecalActor>(GetActorLocation(), FRotator());
 		MousePositionDecal->GetDecal()->DecalSize = FVector(32.0f, 64.0f, 64.0f);
 		MousePositionDecal->SetDecalMaterial(AllowedPosition);
+
+		if(HasAuthority())
+		{			
+			OnRep_PlayerState();
+		}
 	}	
 }
 
@@ -120,7 +125,7 @@ void ATopDownPlayer::Tick(float DeltaTime)
 void ATopDownPlayer::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();	
-
+	
 	if(!TopDownPlayerState)
 	{		
 		if(!GetPlayerState())
@@ -135,6 +140,8 @@ void ATopDownPlayer::OnRep_PlayerState()
 			UE_LOG(LogTemp, Warning, TEXT("TopDownPlayer - OnRep_PlayerState: TopDownPlayerState not set."));
 			return;
 		}
+		
+		TopDownPlayerState->SetUpPlayerState(this);
 	}
 	
 	/* Only Spawn the Player's Character on the Server as technically it is AI and therefore not directly controlled by the player */
@@ -194,7 +201,7 @@ void ATopDownPlayer::ChangeTopDownCharaterOnPlayerState()
 void ATopDownPlayer::CheckCurrentCursorPosition(float DeltaTime)
 {		
 	if(!TopDownPlayerController || !GetWorld() || !AllowedPosition || !NotAllowedPosition || !TopDownPlayerState)
-	{
+	{		
 		bCanMoveToPosition = false;
 		return;
 	}	

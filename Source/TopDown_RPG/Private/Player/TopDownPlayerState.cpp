@@ -1,21 +1,21 @@
 // Copyright Spxcebxr Games
 
-
-#include "Player/TopDownPlayerState.h"
-#include "GameplayEffectTypes.h"
 #include "AbilitySystem/TopDownAbilitySystemComponent.h"
-#include "Player/TopDownPlayerController.h"
 #include "Character/PlayerCharacter/TopDownCharacter.h"
 #include "Game/TopDownGameModeBase.h"
+#include "GameplayEffectTypes.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/TopDownPlayer.h"
+#include "Player/TopDownPlayerController.h"
 #include "Player/TopDownPlayerHUD.h"
-#include "AbilitySystemBlueprintLibrary.h"
+#include "Player/TopDownPlayerState.h"
 
 ATopDownPlayerState::ATopDownPlayerState()
 {
 	NetUpdateFrequency = 100.f;
 	bReplicates = true;
+
+	bIsPlayersTurn = false;
 }
 
 void ATopDownPlayerState::BeginPlay()
@@ -83,6 +83,11 @@ void ATopDownPlayerState::SetCurrentCharacter(ATopDownCharacter* CurrentCharacte
 	}
 	
 	CurrentTopDownCharacter = CurrentCharacter;
+
+	if(TopDownPlayer && TopDownPlayer->HasAuthority())
+	{
+		OnRep_CurrentTopDownCharacter();
+	}
 }
 
 void ATopDownPlayerState::OnRep_CurrentTopDownCharacter()
@@ -122,6 +127,10 @@ void ATopDownPlayerState::OnRep_bIsPlayersTurnChange()
 void ATopDownPlayerState::SetPlayerTurn(bool bInTurn)
 {
 	bIsPlayersTurn = bInTurn;
+	if(TopDownPlayer && TopDownPlayer->HasAuthority())
+	{
+		OnRep_bIsPlayersTurnChange();
+	}
 
 	if(!bIsPlayersTurn)
 	{
