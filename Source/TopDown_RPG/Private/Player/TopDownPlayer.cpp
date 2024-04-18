@@ -1,6 +1,8 @@
 // Copyright Spxcebxr Games
 
 
+#include "Player/TopDownPlayer.h"
+
 #include "AbilitySystem/TopDownAbilitySystemComponent.h"
 #include "AbilitySystem/TopDownAttributeSet.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -13,7 +15,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Interaction/TopDownTargetInterface.h"
 #include "Net/UnrealNetwork.h"
-#include "Player/TopDownPlayer.h"
 #include "Player/TopDownPlayerController.h"
 #include "Player/TopDownPlayerState.h"
 
